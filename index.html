@@ -3,89 +3,426 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Política de Privacidad — SSS: Sweet Sweet Sea</title>
-<style>
-  body { font-family: Georgia, 'Times New Roman', serif; max-width: 760px; margin: 0 auto;
-         padding: 24px 16px 64px; color: #2a2118; background: #f6f1e7; line-height: 1.6; }
-  h1 { font-size: 1.6em; border-bottom: 2px solid #b08d4f; padding-bottom: 8px; }
-  h2 { font-size: 1.2em; color: #6b4f24; margin-top: 1.6em; }
-  hr { border: none; border-top: 1px solid #cbb98f; margin: 40px 0; }
-  .meta { color: #6f6250; font-size: 0.9em; }
-</style>
+<title>Sweet Sweet Sea — Un pirata pobre. Un mar que miente.</title>
+<meta name="description" content="Pesca de día, defiende el muelle de noche, doma a las bestias del abismo y junta las tres llaves de la Puerta Hundida. Supervivencia náutica melancólica para PC y Android.">
+<meta name="theme-color" content="#05080d">
+
+<!-- Tarjeta social -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sweet Sweet Sea">
+<meta property="og:description" content="Un pirata pobre. Un mar que miente. Supervivencia náutica melancólica.">
+<meta property="og:image" content="https://dybitsolutions.github.io/SSS/assets/og.webp">
+<meta property="og:url" content="https://dybitsolutions.github.io/SSS/">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilo.css">
 </head>
-<body>
 
-<h1>Política de Privacidad — SSS: Sweet Sweet Sea</h1>
-<p class="meta">Desarrollador: D &amp; B IT-SOLUTIONS S.A.C. · Vigente desde: 15 de julio de 2026<br>
-Aplica a las aplicaciones <strong>SSS: Sweet Sweet Sea</strong> y <strong>SSS: Sweet Sweet Sea FREE</strong> (Android) y a la versión de PC.</p>
+<body class="lang-es velo-activo">
 
-<h2>1. No recolectamos datos</h2>
-<p>Nuestros juegos <strong>no recogen, no almacenan y no comparten ningún dato personal</strong>.
-No requieren crear cuentas, no muestran anuncios, no incluyen compras dentro de la aplicación
-y no utilizan herramientas de análisis ni rastreadores de terceros.</p>
+<!-- ══════════════════════════════════════════════════════════════
+     EL TELÓN — la cinemática de entrada (primera visita)
+     ══════════════════════════════════════════════════════════════ -->
+<div id="telon" class="telon" hidden>
+  <div class="telon__contenido">
+    <span class="telon__marco">
+      <img class="telon__logo" src="assets/logo.webp" alt="Sweet Sweet Sea" width="1280" height="427">
+    </span>
+    <p class="telon__verso">
+      <span class="es">«El mar miente. Sus islas se deshacen en niebla,<br>y sus noches no siempre te dejan dormir.»</span>
+      <span class="en">“The sea lies. Its islands dissolve into fog,<br>and its nights don't always let you sleep.”</span>
+    </p>
+    <button id="zarpar" class="telon__boton" type="button">
+      <span class="es">TOCA PARA ZARPAR</span>
+      <span class="en">TOUCH TO SET SAIL</span>
+    </button>
+    <p class="telon__nota">
+      <span class="es">Se abrirá con música. Baja el volumen si hace falta.</span>
+      <span class="en">It opens with music. Lower your volume if needed.</span>
+    </p>
+  </div>
+  <div class="telon__niebla telon__niebla--izq"></div>
+  <div class="telon__niebla telon__niebla--der"></div>
+</div>
 
-<h2>2. Partidas guardadas</h2>
-<p>El progreso del juego (partidas guardadas, logros y opciones) se almacena <strong>únicamente
-en el dispositivo del jugador</strong>. Nunca se envía a servidores nuestros ni de terceros.</p>
+<!-- ══════════════════════════════════════════════════════════════
+     EL MAR — lienzo de fondo, siempre vivo
+     ══════════════════════════════════════════════════════════════ -->
+<canvas id="mar" class="mar" aria-hidden="true"></canvas>
+<div class="mar__velo" aria-hidden="true"></div>
 
-<h2>3. Sincronización entre dispositivos (solo versión completa)</h2>
-<p>La versión completa permite vincular el teléfono con la versión de PC para usarlo como
-instrumental del barco y para transferir partidas guardadas. Esta función trabaja
-<strong>exclusivamente dentro de la red WiFi local del jugador</strong>, comunicando de forma
-directa sus propios dispositivos. Los datos transferidos (la partida guardada) <strong>nunca
-salen de su red local</strong> ni pasan por internet ni por servidores externos.</p>
+<!-- Barra superior -->
+<header class="barra">
+  <a class="barra__marca" href="#top">
+    <span class="barra__sss">SSS</span>
+    <span class="barra__nombre">Sweet Sweet Sea</span>
+  </a>
+  <nav class="barra__nav">
+    <a href="#juego"><span class="es">El juego</span><span class="en">The game</span></a>
+    <a href="#bestiario"><span class="es">Bestiario</span><span class="en">Bestiary</span></a>
+    <a href="#mareas"><span class="es">Mareas</span><span class="en">Tides</span></a>
+    <a href="#jugar"><span class="es">Jugar</span><span class="en">Play</span></a>
+  </nav>
+  <div class="barra__controles">
+    <button id="btn-audio" class="chip chip--icono" type="button" aria-pressed="false" title="Música">
+      <span class="icono-audio" aria-hidden="true"></span>
+      <span class="sr">Música</span>
+    </button>
+    <button id="btn-idioma" class="chip" type="button" aria-label="Cambiar idioma / Switch language">
+      <span class="es">EN</span><span class="en">ES</span>
+    </button>
+  </div>
+</header>
 
-<h2>4. Permisos que solicita la aplicación</h2>
-<ul>
-  <li><strong>Red local</strong> (solo versión completa): para el vínculo PC↔teléfono descrito arriba.</li>
-  <li><strong>Vibración</strong>: para la respuesta háptica del juego.</li>
-</ul>
+<main id="top">
 
-<h2>5. Menores de edad</h2>
-<p>El juego no está dirigido a niños. Al no recolectar dato alguno, no se recogen datos de
-menores en ningún caso.</p>
+  <!-- ═══════════ HÉROE ═══════════ -->
+  <section class="heroe">
+    <div class="heroe__centro">
+      <img class="heroe__logo" src="assets/logo.webp" alt="Sweet Sweet Sea" width="1280" height="427" fetchpriority="high">
+      <p class="heroe__lema">
+        <span class="es">Un pirata pobre. Un mar que miente.</span>
+        <span class="en">A poor pirate. A sea that lies.</span>
+      </p>
+      <p class="heroe__bajada">
+        <span class="es">Pesca de día, defiende el muelle de noche, doma a las bestias del abismo
+          y junta las tres llaves de la Puerta Hundida. Cada vuelta el mar recuerda… y muerde más fuerte.</span>
+        <span class="en">Fish by day, hold the pier by night, tame the beasts of the abyss and gather
+          the three keys to the Sunken Gate. Each loop the sea remembers… and bites harder.</span>
+      </p>
+      <div class="heroe__botones">
+        <a class="boton boton--oro" href="#jugar">
+          <span class="es">Conseguir el juego</span><span class="en">Get the game</span>
+        </a>
+        <a class="boton boton--fantasma" href="#juego">
+          <span class="es">Qué es esto</span><span class="en">What is this</span>
+        </a>
+      </div>
+      <p class="heroe__plataformas">
+        <span class="es">Android · PC (Windows) · <b>Steam próximamente</b></span>
+        <span class="en">Android · PC (Windows) · <b>Coming to Steam</b></span>
+      </p>
+    </div>
 
-<h2>6. Cambios en esta política</h2>
-<p>Si esta política cambia, la versión actualizada se publicará en esta misma dirección.</p>
+    <!-- Rótulo de la marea viva -->
+    <div id="rotulo-marea" class="marea-rotulo" aria-live="polite">
+      <span class="marea-rotulo__ojo"><span class="es">El mar hoy</span><span class="en">The sea today</span></span>
+      <strong id="marea-nombre" class="marea-rotulo__nombre">Mar en calma</strong>
+      <span id="marea-nota" class="marea-rotulo__nota"></span>
+    </div>
 
-<h2>7. Contacto</h2>
-<p>Preguntas sobre esta política: <strong>empresa@byditsolutions.com</strong></p>
+    <a class="heroe__flecha" href="#juego" aria-label="Bajar"><span></span></a>
+  </section>
 
-<hr>
+  <!-- ═══════════ EL JUEGO ═══════════ -->
+  <section id="juego" class="seccion">
+    <div class="envoltura">
+      <h2 class="titulo">
+        <span class="es">El mar miente</span>
+        <span class="en">The sea lies</span>
+      </h2>
+      <p class="parrafo parrafo--grande">
+        <span class="es">Sus islas se deshacen en niebla, la fortuna de la adivina sentencia el clima
+          y sus noches no siempre te dejan dormir.</span>
+        <span class="en">Its islands dissolve into fog, the fortune-teller's verdicts come true,
+          and its nights don't always let you sleep.</span>
+      </p>
+      <p class="parrafo">
+        <span class="es">Eres un marinero pobre en un muelle al fin del mundo. De día pescas, rebuscas la deriva,
+          comercias con los vecinos y mejoras tu bote. De noche, el mar cobra: insomnios que se ganan a golpes,
+          asedios de colosos de ojos violeta, y una travesía de tinta negra hacia una ciudad que no debería tener torres.</span>
+        <span class="en">You are a poor sailor on a pier at the end of the world. By day you fish, scavenge the drift,
+          trade with the neighbors and upgrade your boat. By night the sea collects: sleepless sieges, violet-eyed
+          colossi on the planks, and an ink-black crossing toward a city that shouldn't have towers.</span>
+      </p>
 
-<h1>Privacy Policy — SSS: Sweet Sweet Sea</h1>
-<p class="meta">Developer: D &amp; B IT-SOLUTIONS S.A.C. · Effective: July 15, 2026<br>
-Applies to <strong>SSS: Sweet Sweet Sea</strong> and <strong>SSS: Sweet Sweet Sea FREE</strong> (Android) and the PC version.</p>
+      <div class="rejilla-sistemas">
+        <article class="carta">
+          <h3><span class="es">Pesca con forcejeo</span><span class="en">Tug-of-war fishing</span></h3>
+          <p><span class="es">El carrete y la caña son tus gestos. <b>RECOGE</b>, <b>SUELTA</b>, <b>JALA</b> —
+            el pez dicta y tú respondes.</span>
+            <span class="en">The reel and the rod are your gestures. <b>REEL</b>, <b>GIVE LINE</b>, <b>PULL</b> —
+            the fish commands, you answer.</span></p>
+        </article>
+        <article class="carta">
+          <h3><span class="es">Doma bestias</span><span class="en">Tame beasts</span></h3>
+          <p><span class="es">La ballena, el calamar, la serpiente… cada una con su carácter. Aliméntalas,
+            témplalas con tesoros y te escoltarán mar adentro.</span>
+            <span class="en">The whale, the squid, the serpent… each with its own character. Feed them,
+            temper them with treasures, and they'll escort you.</span></p>
+        </article>
+        <article class="carta">
+          <h3><span class="es">Un muelle vivo</span><span class="en">A living pier</span></h3>
+          <p><span class="es">Banco, astillero, cambista, la draga del Viejo, la adivina cuya fortuna
+            <b>se cumple</b>, y vecinos con encargos.</span>
+            <span class="en">Bank, shipyard, trader, the Old Man's dredge, a fortune-teller whose verdicts
+            <b>come true</b>, and neighbors with errands.</span></p>
+        </article>
+        <article class="carta">
+          <h3><span class="es">Siete climas y un cielo real</span><span class="en">Seven weathers, a real sky</span></h3>
+          <p><span class="es">Calma chicha, niebla, tempestad. Fases de luna que siguen a la luna de verdad,
+            estrellas fugaces y un faro que barre el agua.</span>
+            <span class="en">Dead calm, fog, tempest. Moon phases that follow the real moon, shooting stars
+            and a lighthouse sweeping the water.</span></p>
+        </article>
+        <article class="carta">
+          <h3><span class="es">La cordura</span><span class="en">Sanity</span></h3>
+          <p><span class="es">La noche, la niebla y lo que canta desde el agua te gastan la mente.
+            Si se rompe, el mar se vuelve negro donde estés.</span>
+            <span class="en">Night, fog and what sings from the water wear your mind down.
+            Break it, and the sea turns black wherever you are.</span></p>
+        </article>
+        <article class="carta carta--oro">
+          <h3><span class="es">El final es una vuelta</span><span class="en">The ending is a loop</span></h3>
+          <p><span class="es">Tres llaves abren la Puerta Hundida. Cruzarla no termina el juego:
+            lo vuelve más hondo. Bestias más bravas, marineros nuevos jugables.</span>
+            <span class="en">Three keys open the Sunken Gate. Crossing it doesn't end the game —
+            it deepens it. Fiercer beasts, new playable sailors.</span></p>
+        </article>
+      </div>
+    </div>
+  </section>
 
-<h2>1. We collect no data</h2>
-<p>Our games <strong>do not collect, store or share any personal data</strong>. They require no
-accounts, show no ads, contain no in-app purchases and use no third-party analytics or trackers.</p>
+  <!-- ═══════════ BESTIARIO ═══════════ -->
+  <section id="bestiario" class="seccion seccion--honda">
+    <div class="envoltura">
+      <h2 class="titulo">
+        <span class="es">Lo que sube del fondo</span>
+        <span class="en">What rises from below</span>
+      </h2>
+      <p class="parrafo parrafo--centro">
+        <span class="es">Cada criatura tiene un poder propio… y ese poder <b>crece con cada vuelta</b> que das a la Puerta.</span>
+        <span class="en">Every creature has a power of its own… and that power <b>grows with every loop</b> through the Gate.</span>
+      </p>
 
-<h2>2. Save files</h2>
-<p>Game progress (saves, achievements and settings) is stored <strong>only on the player's
-device</strong>. It is never sent to our servers or to third parties.</p>
+      <div class="rejilla-bestias">
+        <figure class="bestia">
+          <img src="assets/bestias/leviatan.webp" alt="" loading="lazy" width="476" height="720">
+          <figcaption>
+            <b><span class="es">Leviatán</span><span class="en">Leviathan</span></b>
+            <span class="es">Siete cabezas coronadas. Guarda la Puerta.</span>
+            <span class="en">Seven crowned heads. It guards the Gate.</span>
+          </figcaption>
+        </figure>
+        <figure class="bestia">
+          <img src="assets/bestias/kraken.webp" alt="" loading="lazy" width="713" height="660">
+          <figcaption>
+            <b><span class="es">Kraken</span><span class="en">Kraken</span></b>
+            <span class="es">Telegrafía un golpe de mar: pon la proa a la ola.</span>
+            <span class="en">It telegraphs a tidal blow: turn your bow into the wave.</span>
+          </figcaption>
+        </figure>
+        <figure class="bestia">
+          <img src="assets/bestias/serpiente.webp" alt="" loading="lazy" width="690" height="660">
+          <figcaption>
+            <b><span class="es">Serpiente Negra</span><span class="en">Black Serpent</span></b>
+            <span class="es">Acecha, se alza, muerde y se retira.</span>
+            <span class="en">It stalks, rears, bites and withdraws.</span>
+          </figcaption>
+        </figure>
+        <figure class="bestia">
+          <img src="assets/bestias/ballena.webp" alt="" loading="lazy" width="671" height="620">
+          <figcaption>
+            <b><span class="es">Ballena</span><span class="en">Whale</span></b>
+            <span class="es">Flanquea y salta. Se puede montar.</span>
+            <span class="en">It flanks and breaches. It can be ridden.</span>
+          </figcaption>
+        </figure>
+      </div>
 
-<h2>3. Cross-device sync (full version only)</h2>
-<p>The full version can link your phone with the PC version to use it as the ship's instruments
-and to transfer save files. This feature works <strong>exclusively within the player's local
-WiFi network</strong>, connecting their own devices directly. Transferred data (the save file)
-<strong>never leaves their local network</strong> and never touches the internet or external servers.</p>
+      <!-- La prismática -->
+      <div class="prismatica">
+        <div class="prismatica__arte">
+          <img id="bestia-iris" src="assets/bestias/calamar.webp" alt="" loading="lazy" width="674" height="660">
+        </div>
+        <div class="prismatica__texto">
+          <span class="etiqueta"><span class="es">1 de 64 · solo por crianza</span><span class="en">1 in 64 · breeding only</span></span>
+          <h3><span class="es">La Prismática</span><span class="en">The Prismatic</span></h3>
+          <p><span class="es">No tiene un color: los tiene <b>todos</b>. Cruza dos bestias de la misma especie,
+            amaestradas y sin hambre, y el nido de la caja de peces te dejará un huevo. La cría hereda estrellas,
+            talla, temple y mutaciones… y una de cada sesenta y cuatro nace así.</span>
+            <span class="en">It has no colour: it has <b>all</b> of them. Breed two tamed, well-fed beasts of the same
+            species and the nest in the fish crate will leave you an egg. The calf inherits stars, size, temper and
+            mutations… and one in sixty-four is born like this.</span></p>
+          <p class="prismatica__pasiva">
+            <span class="es">todos los colores · oro ×4 · una ★ extra</span>
+            <span class="en">all colours · gold ×4 · one extra ★</span>
+          </p>
+        </div>
+      </div>
 
-<h2>4. Permissions</h2>
-<ul>
-  <li><strong>Local network</strong> (full version only): for the PC↔phone link described above.</li>
-  <li><strong>Vibration</strong>: for haptic feedback.</li>
-</ul>
+      <!-- Mutaciones -->
+      <h3 class="subtitulo">
+        <span class="es">Las siete mutaciones</span>
+        <span class="en">The seven mutations</span>
+      </h3>
+      <ul class="mutaciones">
+        <li style="--tinte:#8CA8FF"><b><span class="es">Férrea</span><span class="en">Iron</span></b>
+          <span class="es">+50% vida · +4 de coraza · oro ×1,6</span><span class="en">+50% health · +4 armour · gold ×1.6</span></li>
+        <li style="--tinte:#8CFF80"><b><span class="es">Tóxica</span><span class="en">Toxic</span></b>
+          <span class="es">+25% daño · la mordida araña la mente</span><span class="en">+25% damage · its bite scratches the mind</span></li>
+        <li style="--tinte:#FFD98C"><b><span class="es">Áurea</span><span class="en">Golden</span></b>
+          <span class="es">oro ×3 · +15% de rapidez</span><span class="en">gold ×3 · +15% speed</span></li>
+        <li style="--tinte:#8C80FF"><b><span class="es">Abisal</span><span class="en">Abyssal</span></b>
+          <span class="es">+30% vida · +15% daño · una ★ extra</span><span class="en">+30% health · +15% damage · one extra ★</span></li>
+        <li style="--tinte:#E8F0FF"><b><span class="es">Espectral</span><span class="en">Spectral</span></b>
+          <span class="es">+35% rapidez · esquiva 1 de cada 4 golpes</span><span class="en">+35% speed · dodges 1 in 4 blows</span></li>
+        <li style="--tinte:#D1AE6B"><b><span class="es">Centenaria</span><span class="en">Ancient</span></b>
+          <span class="es">+25% talla · +60% vida · lenta · oro ×2,2</span><span class="en">+25% size · +60% health · slow · gold ×2.2</span></li>
+        <li class="mutaciones__iris"><b><span class="es">Prismática</span><span class="en">Prismatic</span></b>
+          <span class="es">todos los colores · oro ×4 · una ★ extra</span><span class="en">all colours · gold ×4 · one extra ★</span></li>
+      </ul>
+    </div>
+  </section>
 
-<h2>5. Children</h2>
-<p>The game is not directed at children. Since no data is collected at all, no data is ever
-collected from minors.</p>
+  <!-- ═══════════ MAREAS ═══════════ -->
+  <section id="mareas" class="seccion">
+    <div class="envoltura">
+      <h2 class="titulo">
+        <span class="es">Las seis mareas</span>
+        <span class="en">The six tides</span>
+      </h2>
+      <p class="parrafo parrafo--grande">
+        <span class="es">Algunos amaneceres el mar entero cambia de color.</span>
+        <span class="en">Some dawns the whole sea changes colour.</span>
+      </p>
+      <p class="parrafo parrafo--centro">
+        <span class="es">El fondo de esta página son esas mareas, con sus colores de verdad —
+          los mismos que el juego le da al agua. Espera un poco y las verás pasar.</span>
+        <span class="en">The background of this page is those tides, in their real colours —
+          the very ones the game gives the water. Wait a little and you'll see them pass.</span>
+      </p>
 
-<h2>6. Changes</h2>
-<p>If this policy changes, the updated version will be published at this same address.</p>
+      <ul class="mareas" id="lista-mareas"><!-- la puebla js/sitio.js desde la misma tabla que pinta el mar --></ul>
+    </div>
+  </section>
 
-<h2>7. Contact</h2>
-<p>Questions about this policy: <strong>empresa@byditsolutions.com</strong></p>
+  <!-- ═══════════ CAPTURAS ═══════════ -->
+  <section class="seccion seccion--honda">
+    <div class="envoltura">
+      <h2 class="titulo"><span class="es">El puerto, la caja y la caña</span><span class="en">The port, the crate and the rod</span></h2>
+      <div class="capturas">
+        <figure>
+          <img src="assets/capturas/muelle.webp" alt="" loading="lazy" width="1351" height="760">
+          <figcaption><span class="es">El muelle de noche: banco, astillero, la draga y la adivina.</span>
+            <span class="en">The pier at night: bank, shipyard, the dredge and the fortune-teller.</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/capturas/bestias.webp" alt="" loading="lazy" width="1351" height="760">
+          <figcaption><span class="es">La caja de peces: tus bestias crecen, comen y con la edad piden mejor pesca.</span>
+            <span class="en">The fish crate: your beasts grow, eat, and with age demand better catches.</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/capturas/pesca.webp" alt="" loading="lazy" width="1351" height="760">
+          <figcaption><span class="es">El forcejeo: la barra manda, y el pez no afloja.</span>
+            <span class="en">The tug-of-war: the bar commands, and the fish won't give.</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
 
+  <!-- ═══════════ JUGAR ═══════════ -->
+  <section id="jugar" class="seccion">
+    <div class="envoltura">
+      <h2 class="titulo"><span class="es">Dónde zarpar</span><span class="en">Where to set sail</span></h2>
+
+      <div class="tiendas">
+        <article class="tienda tienda--steam">
+          <span class="tienda__plat">Steam · PC</span>
+          <h3><span class="es">Próximamente</span><span class="en">Coming soon</span></h3>
+          <p><span class="es">La versión de PC llega a Steam con 30 logros y guardado en la nube.
+            Estamos preparando la ficha; en cuanto esté arriba, podrás añadirlo a tu lista de deseados.</span>
+            <span class="en">The PC version is coming to Steam with 30 achievements and cloud saves.
+            The store page is in the works; as soon as it's up you'll be able to wishlist it.</span></p>
+          <span class="boton boton--inerte"><span class="es">Ficha en preparación</span><span class="en">Store page in progress</span></span>
+        </article>
+
+        <article class="tienda">
+          <span class="tienda__plat">Google Play · Android</span>
+          <h3><span class="es">Versión completa</span><span class="en">Full version</span></h3>
+          <p><span class="es">El juego entero: días sin límite, todas las ranuras de partida, los cuatro marineros
+            y el vínculo con la versión de PC por WiFi.</span>
+            <span class="en">The whole game: unlimited days, all save slots, the four sailors and the WiFi link
+            with the PC version.</span></p>
+          <a class="boton boton--oro" href="https://play.google.com/store/apps/details?id=com.dybitsolutions.dulcedulcemar" target="_blank" rel="noopener">
+            Google Play
+          </a>
+        </article>
+
+        <article class="tienda">
+          <span class="tienda__plat">Google Play · Android</span>
+          <h3><span class="es">Versión gratuita</span><span class="en">Free version</span></h3>
+          <p><span class="es">Diez días de mar, una ranura de partida y El Pescador. Sin anuncios y sin compras:
+            es una prueba honesta, no un cepo.</span>
+            <span class="en">Ten days at sea, one save slot and The Fisherman. No ads, no purchases:
+            an honest demo, not a trap.</span></p>
+          <a class="boton" href="https://play.google.com/store/apps/details?id=com.dybitsolutions.dulcedulcemar.free" target="_blank" rel="noopener">
+            <span class="es">Probar gratis</span><span class="en">Play for free</span>
+          </a>
+        </article>
+      </div>
+
+      <p class="nota-legal">
+        <span class="es">Sin anuncios. Sin compras dentro del juego. Sin cuentas. Sin recolección de datos —
+          <a href="privacidad.html">y aquí está la política que lo dice</a>.</span>
+        <span class="en">No ads. No in-app purchases. No accounts. No data collection —
+          <a href="privacidad.html">and here's the policy that says so</a>.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════ TRIPULACIÓN (hueco preparado para el captcha) ═══════════ -->
+  <section id="tripulacion" class="seccion seccion--honda">
+    <div class="envoltura envoltura--angosta">
+      <h2 class="titulo"><span class="es">Avisarme del zarpe</span><span class="en">Tell me when it sails</span></h2>
+      <p class="parrafo parrafo--centro">
+        <span class="es">Todavía no hay lista de correo: no recogemos datos de nadie. Cuando la ficha de Steam
+          esté publicada, este hueco tendrá el botón de lista de deseados. Mientras tanto, escríbenos.</span>
+        <span class="en">There's no mailing list yet: we collect nobody's data. Once the Steam page is live,
+          this spot will hold the wishlist button. In the meantime, write to us.</span>
+      </p>
+      <!--
+        HUECO DEL CAPTCHA — cuando se compre el dominio y entre Cloudflare:
+        1. Alta del sitio en Cloudflare Turnstile (gratis) → sitekey.
+        2. Descomentar el script y el div de abajo, y poner la sitekey.
+        3. El formulario necesita un receptor (Formspree/Worker); hoy no hay backend
+           a propósito: ver privacidad.html §1, "no recolectamos datos".
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        <div class="cf-turnstile" data-sitekey="PENDIENTE"></div>
+      -->
+      <p class="contacto">
+        <a class="boton boton--fantasma" href="mailto:empresa@byditsolutions.com?subject=Sweet%20Sweet%20Sea">empresa@byditsolutions.com</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="pie">
+  <div class="envoltura pie__filas">
+    <div>
+      <img class="pie__logo" src="assets/logo_dyb.webp" alt="D &amp; B IT-SOLUTIONS" loading="lazy" width="163" height="120">
+      <p class="pie__empresa">D &amp; B IT-SOLUTIONS S.A.C.</p>
+    </div>
+    <nav class="pie__nav">
+      <a href="privacidad.html"><span class="es">Política de privacidad</span><span class="en">Privacy policy</span></a>
+      <a href="mailto:empresa@byditsolutions.com">empresa@byditsolutions.com</a>
+      <a href="https://play.google.com/store/apps/details?id=com.dybitsolutions.dulcedulcemar" target="_blank" rel="noopener">Google Play</a>
+    </nav>
+  </div>
+  <p class="pie__firma">
+    <span class="es">Sweet Sweet Sea © D &amp; B IT-SOLUTIONS S.A.C. Hecho con Godot. La música y el arte son nuestros.</span>
+    <span class="en">Sweet Sweet Sea © D &amp; B IT-SOLUTIONS S.A.C. Made with Godot. The music and art are ours.</span>
+  </p>
+</footer>
+
+<audio id="musica" src="assets/audio/menu_guitarra.mp3" loop preload="none"></audio>
+
+<script src="js/mar.js"></script>
+<script src="js/sitio.js"></script>
 </body>
 </html>

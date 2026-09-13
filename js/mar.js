@@ -1,0 +1,518 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   EL MAR — fondo vivo de sweetsweetsea
+   ───────────────────────────────────────────────────────────────────────
+   Pinta el mismo mar de tiras 2.5D del juego: cielo, estrellas, luna,
+   varias hileras de olas y bestias que emergen entre ellas.
+
+   Los colores NO son inventados: son los de la tabla GM.MAREAS del juego
+   (campo "agua": [hondo, horizonte]), pasados de 0-1 a 0-255. Cuando el
+   mar cambia de marea aquí, cambia con el color con el que cambiaría allá.
+
+   Expone window.Mar = { mareaActual(), alCambiarMarea(fn), MAREAS }.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  // ── La tabla de mareas ────────────────────────────────────────────────
+  // hondo/horiz en 0-255. "nota" es la frase corta del rótulo del héroe;
+  // "regla" es la línea de números que el juego enseña en el Calendario.
+  var MAREAS = [
+    {
+      id: 'calma',
+      es: 'Mar en calma',            en: 'Calm sea',
+      hondo: [41, 97, 133],          horiz: [77, 133, 163],
+      notaEs: 'Nada anuncia nada. Aprovecha.',
+      notaEn: 'Nothing foretells anything. Make the most of it.',
+      reglaEs: 'El mar de todos los días: pesca corriente, bestias corrientes, cielo que sí se deja leer.',
+      reglaEn: 'The everyday sea: ordinary fishing, ordinary beasts, a sky you can actually read.'
+    },
+    {
+      id: 'dorada',
+      es: 'Marea Dorada',            en: 'Golden Tide',
+      hondo: [115, 82, 20],          horiz: [173, 133, 41],
+      notaEs: 'Hay monedas girando en la espuma… y el oro llama.',
+      notaEn: 'There are coins spinning in the foam… and gold calls.',
+      reglaEs: 'Botín ×3, la pesca vale ×1,5 y hay monedas en la espuma — pero el oro LLAMA: al caer la tarde, bestias ×1,6.',
+      reglaEn: 'Loot ×3, catches worth ×1.5 and coins in the foam — but gold CALLS: come evening, beasts ×1.6.'
+    },
+    {
+      id: 'prismatica',
+      es: 'Marea Prismática',        en: 'Prismatic Tide',
+      hondo: null,                   horiz: null,   // los cicla: ver colorIris()
+      notaEs: 'El mar no tiene color hoy: los tiene todos.',
+      notaEn: 'The sea has no colour today: it has all of them.',
+      reglaEs: 'El agua cicla TODOS los colores; lo raro pica ×2,5 y las bestias emergen con una estrella de más: hoy todo puede nacer raro.',
+      reglaEn: 'The water cycles EVERY colour; rare things bite ×2.5 and beasts surface with an extra star: today anything can be born rare.'
+    },
+    {
+      id: 'sangre',
+      es: 'Marea de Sangre',         en: 'Blood Tide',
+      hondo: [66, 10, 13],           horiz: [107, 26, 23],
+      notaEs: 'No es coral, no es alga: el agua huele a hierro.',
+      notaEn: "It's not coral, it's not weed: the water smells of iron.",
+      reglaEs: 'Bestias ×1,9 y DESPIERTAS, náufragos ×2, zarpar cuesta 5 de cordura… y lo que el mar suelta hoy lo paga caro.',
+      reglaEn: 'Beasts ×1.9 and AWAKE, castaways ×2, setting sail costs 5 sanity… and what the sea gives today, it gives dearly.'
+    },
+    {
+      id: 'leche',
+      es: 'Mar de Leche',            en: 'Sea of Milk',
+      hondo: [140, 148, 153],        horiz: [191, 196, 199],
+      notaEs: 'La niebla y el agua son una sola cosa. Escucha.',
+      notaEn: 'Fog and water are one thing. Listen.',
+      reglaEs: 'Niebla total y silencio; el lazo agarra ×1,5 y lo domado sale con una estrella de más: EL día de ir de captura.',
+      reglaEn: 'Total fog and silence; the lasso grips ×1.5 and what you tame gains a star: THE day to go catching.'
+    },
+    {
+      id: 'rosada',
+      es: 'Marea Rosada',            en: 'Rose Tide',
+      hondo: [107, 26, 66],          horiz: [158, 71, 112],
+      notaEs: 'Encendido por dentro como una brasa fría.',
+      notaEn: 'Lit from within like a cold ember.',
+      reglaEs: 'Bestias MANSAS (solo el acero las despierta), lo raro pica ×2 y navegar SANA la mente: la única agua que devuelve.',
+      reglaEn: 'Beasts TAME (only steel wakes them), rare things bite ×2 and sailing HEALS the mind: the only water that gives back.'
+    },
+    {
+      id: 'sargazo',
+      es: 'El Sargazo',              en: 'The Sargasso',
+      hondo: [26, 71, 46],           horiz: [51, 102, 71],
+      notaEs: 'Algas hasta donde alcanza la vista. El bote se arrastra.',
+      notaEn: 'Weed as far as the eye can see. The boat drags.',
+      reglaEs: 'El bote se arrastra (−10% vela), bestias escasas (×0,6), el DOBLE de restos flotando: día de cosecha mansa.',
+      reglaEn: 'The boat drags (−10% sail), scarce beasts (×0.6), DOUBLE the floating debris: a day of gentle harvest.'
+    }
+  ];
+
+  var CICLO_MS = 21000;   // cuánto dura cada marea
+  var CRUCE_MS = 4200;    // cuánto tarda en convertirse en la siguiente
+
+  /* Flags de captura, en el espíritu de los del juego. En la barra:
+       ?marea=dorada   fija una marea y no cicla (para fotografiar su color)
+       ?ya=1           las bestias nacen ya emergidas (una foto no espera)
+     No estorban a nadie: sin parámetros, el mar se comporta normal. */
+  var FLAGS = (function () {
+    var f = {};
+    try {
+      new URLSearchParams(location.search).forEach(function (v, k) { f[k] = v; });
+    } catch (e) { /* navegador viejo: sin flags y tan tranquilos */ }
+    return f;
+  })();
+  var FIJA = FLAGS.marea || '';
+  var YA = FLAGS.ya === '1';
+  /* En modo captura (?ir=) el mar pinta un puñado de cuadros y se detiene:
+     con un requestAnimationFrame perpetuo, el reloj virtual del navegador
+     sin ventana nunca se agota y la captura no llega a dispararse. */
+  var CAPTURA = !!FLAGS.ir;
+  var cuadrosPintados = 0;
+
+  // ── Utilería de color ─────────────────────────────────────────────────
+  function mezcla(a, b, t) {
+    return [
+      a[0] + (b[0] - a[0]) * t,
+      a[1] + (b[1] - a[1]) * t,
+      a[2] + (b[2] - a[2]) * t
+    ];
+  }
+  function rgb(c, alfa) {
+    return 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + (alfa === undefined ? 1 : alfa) + ')';
+  }
+  function hsv(h, s, v) {   // h 0-1 — gemelo de Color.from_hsv() de Godot
+    var i = Math.floor(h * 6), f = h * 6 - i;
+    var p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+    var r, g, b;
+    switch (i % 6) {
+      case 0: r = v; g = t; b = p; break;
+      case 1: r = q; g = v; b = p; break;
+      case 2: r = p; g = v; b = t; break;
+      case 3: r = p; g = q; b = v; break;
+      case 4: r = t; g = p; b = v; break;
+      default: r = v; g = p; b = q;
+    }
+    return [Math.min(255, r * 255), Math.min(255, g * 255), Math.min(255, b * 255)];
+  }
+  /* color_prismatica() del juego: from_hsv(fmod(t*0.28,1), 0.72, 1.18).
+     Aquí gira más despacio — una web no es una partida. */
+  function colorIris(t, desfase) {
+    return hsv(((t * 0.09 + (desfase || 0)) % 1 + 1) % 1, 0.72, 1.0);
+  }
+  function paletaDe(marea, t) {
+    if (marea.id === 'prismatica') {
+      return { hondo: colorIris(t, 0), horiz: colorIris(t, 0.12) };
+    }
+    return { hondo: marea.hondo, horiz: marea.horiz };
+  }
+
+  // ── El lienzo ─────────────────────────────────────────────────────────
+  var lienzo = document.getElementById('mar');
+  if (!lienzo) return;
+  var ctx = lienzo.getContext('2d', { alpha: false });
+
+  var W = 0, H = 0, DPR = 1;
+  var quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function medir() {
+    DPR = Math.min(window.devicePixelRatio || 1, window.innerWidth < 820 ? 1.5 : 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    lienzo.width = Math.round(W * DPR);
+    lienzo.height = Math.round(H * DPR);
+    lienzo.style.width = W + 'px';
+    lienzo.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    sembrarEstrellas();
+  }
+
+  // ── Estrellas ─────────────────────────────────────────────────────────
+  var estrellas = [];
+  function sembrarEstrellas() {
+    estrellas = [];
+    var n = Math.round(W * H / 16000);
+    n = Math.max(40, Math.min(n, 150));
+    for (var i = 0; i < n; i++) {
+      estrellas.push({
+        x: Math.random() * W,
+        y: Math.random() * H * 0.46,
+        r: Math.random() * 1.25 + 0.3,
+        base: Math.random() * 0.5 + 0.25,
+        vel: Math.random() * 1.6 + 0.4,
+        fase: Math.random() * 6.283
+      });
+    }
+  }
+
+  // ── Bestias que emergen ───────────────────────────────────────────────
+  // Cada aparición nace bajo la línea del agua, sube, se queda mirando y
+  // se vuelve a hundir — las "presencias del horizonte" del juego.
+  var ARCHIVOS = {
+    grandes: ['leviatan', 'kraken', 'serpiente', 'calamar', 'ballena'],
+    medianas: ['megalodon', 'tentaculo'],
+    pequenas: ['sirena', 'cthulhu', 'rape', 'tortuga']
+  };
+  var imagenes = {};
+  function cargar(nombre) {
+    if (imagenes[nombre]) return imagenes[nombre];
+    var im = new Image();
+    im.decoding = 'async';
+    im.src = 'assets/bestias/' + nombre + '.webp';
+    imagenes[nombre] = im;
+    return im;
+  }
+  // Precarga: primero las que salen antes.
+  ARCHIVOS.grandes.forEach(cargar);
+  ARCHIVOS.medianas.forEach(cargar);
+  ARCHIVOS.pequenas.forEach(cargar);
+
+  var apariciones = [];
+  var hayFiltro = (function () {
+    try { return typeof ctx.filter === 'string'; } catch (e) { return false; }
+  })();
+
+  function nacerAparicion(iris) {
+    // El iris siempre es una bestia grande: tiene que verse que es rara.
+    var grupo = iris ? 'grandes'
+      : (Math.random() < 0.45 ? 'grandes' : (Math.random() < 0.55 ? 'medianas' : 'pequenas'));
+    var lista = ARCHIVOS[grupo];
+    var nombre = lista[Math.floor(Math.random() * lista.length)];
+
+    // Capa: entre qué hileras asoma (0 = al fondo). Las grandes salen CERCA,
+    // nunca junto al horizonte: una bestia pequeña y alta se lee como pegatina.
+    var capa = grupo === 'pequenas' ? 1 : (grupo === 'medianas' ? 2 : 3 + Math.floor(Math.random() * 2));
+    // Altura fuera del agua, en fracción de pantalla. Contenida a propósito:
+    // el mar es el fondo de una web, no el escenario de una pelea.
+    var alto = grupo === 'pequenas' ? 0.042 : (grupo === 'medianas' ? 0.075 : 0.115 + Math.random() * 0.055);
+
+    var sube = 3.2 + Math.random() * 1.8;
+    return {
+      nombre: nombre,
+      img: cargar(nombre),
+      iris: !!iris,
+      capa: capa,
+      x: 0.08 + Math.random() * 0.84,       // fracción del ancho
+      alto: alto,                            // fracción de la altura
+      giro: Math.random() < 0.5 ? -1 : 1,
+      // con ?ya=1 nace con la subida hecha: sale del agua en el primer cuadro
+      nace: YA ? reloj - sube : reloj,
+      sube: sube,
+      queda: (iris ? 11 : 5) + Math.random() * 5,
+      baja: 3.2 + Math.random() * 1.8,
+      desfase: Math.random()
+    };
+  }
+
+  function poblar() {
+    // Regla de la casa: SIEMPRE hay exactamente una prismática en el agua.
+    var hayIris = false, i;
+    for (i = 0; i < apariciones.length; i++) if (apariciones[i].iris) hayIris = true;
+    if (!hayIris) apariciones.push(nacerAparicion(true));
+
+    var tope = W < 700 ? 2 : 4;
+    // Con ?ya=1 el mar se puebla de golpe; si no, van asomando poco a poco.
+    var prisa = YA && apariciones.length < tope;
+    if (apariciones.length < tope && (prisa || Math.random() < 0.02)) {
+      apariciones.push(nacerAparicion(false));
+    }
+  }
+
+  function dibujarAparicion(a, tiraY, tiraAlto) {
+    var im = a.img;
+    if (!im.complete || !im.naturalWidth) return;
+
+    var vida = reloj - a.nace;
+    var total = a.sube + a.queda + a.baja;
+    if (vida > total) return;
+
+    // 0 = escondida bajo el agua, 1 = del todo fuera
+    var f;
+    if (vida < a.sube) f = vida / a.sube;
+    else if (vida < a.sube + a.queda) f = 1;
+    else f = 1 - (vida - a.sube - a.queda) / a.baja;
+    f = f * f * (3 - 2 * f);   // suavizado
+
+    // Tope en píxeles: en una pantalla muy alta, una fracción de la altura se
+    // convierte en un sprite gigante y pixelado. El arte no da para tanto.
+    var alto = Math.min(H * a.alto, im.naturalHeight * 1.15);
+    var ancho = alto * (im.naturalWidth / im.naturalHeight);
+    var x = a.x * W;
+    // La línea de flotación de esta capa: la bestia sale DE ahí.
+    var agua = tiraY + tiraAlto * 0.35;
+    var y = agua - alto * f;
+
+    ctx.save();
+    // Las de más lejos se entregan menos: la distancia también es niebla.
+    var lejania = 1 - a.capa / (TIRAS.length - 1);
+    ctx.globalAlpha = Math.min(1, f * 1.6) * (0.92 - lejania * 0.22);
+    // Recorte: lo que queda bajo la línea del agua no se ve.
+    ctx.beginPath();
+    ctx.rect(0, 0, W, agua);
+    ctx.clip();
+
+    if (hayFiltro) {
+      if (a.iris) {
+        ctx.filter = 'hue-rotate(' + Math.round((reloj * 32 + a.desfase * 360) % 360) +
+                     'deg) saturate(1.8) brightness(1.2)';
+      } else {
+        // Varias bestias son casi negras; sobre agua oscura desaparecían.
+        ctx.filter = 'brightness(' + (1.28 - lejania * 0.1).toFixed(2) + ') contrast(0.92)';
+      }
+    }
+    ctx.translate(x, y);
+    if (a.giro < 0) ctx.scale(-1, 1);
+    // Un vaivén muy leve: el agua nunca está quieta.
+    ctx.rotate(Math.sin(reloj * 0.6 + a.desfase * 6.28) * 0.016);
+    ctx.drawImage(im, -ancho / 2, 0, ancho, alto);
+    ctx.restore();
+  }
+
+  // ── Las hileras de olas ───────────────────────────────────────────────
+  // De lejos a cerca: más abajo, más altas, más rápidas y más hondas de color.
+  var TIRAS = [
+    { y: 0.520, amp: 0.0075, onda: 0.0042, vel: 0.16, mez: 0.00, alto: 0.10 },
+    { y: 0.590, amp: 0.0120, onda: 0.0060, vel: 0.26, mez: 0.26, alto: 0.13 },
+    { y: 0.680, amp: 0.0190, onda: 0.0082, vel: 0.40, mez: 0.52, alto: 0.16 },
+    { y: 0.790, amp: 0.0280, onda: 0.0110, vel: 0.60, mez: 0.78, alto: 0.20 },
+    { y: 0.910, amp: 0.0400, onda: 0.0150, vel: 0.88, mez: 1.00, alto: 0.26 }
+  ];
+
+  function dibujarTira(tira, color, t) {
+    var yBase = H * tira.y;
+    var amp = H * tira.amp;
+    var paso = W < 700 ? 14 : 9;
+
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    ctx.lineTo(0, yBase);
+    for (var x = 0; x <= W + paso; x += paso) {
+      var y = yBase
+        + Math.sin(x * tira.onda + t * tira.vel) * amp
+        + Math.sin(x * tira.onda * 2.3 - t * tira.vel * 1.45) * amp * 0.42;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fillStyle = rgb(color);
+    ctx.fill();
+
+    // La cresta: una línea de espuma tenue sobre el filo de la ola.
+    ctx.beginPath();
+    for (var x2 = 0; x2 <= W + paso; x2 += paso) {
+      var y2 = yBase
+        + Math.sin(x2 * tira.onda + t * tira.vel) * amp
+        + Math.sin(x2 * tira.onda * 2.3 - t * tira.vel * 1.45) * amp * 0.42;
+      if (x2 === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
+    }
+    ctx.strokeStyle = rgb(mezcla(color, [255, 255, 255], 0.55), 0.5);
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+  }
+
+  // ── El cuadro ─────────────────────────────────────────────────────────
+  var reloj = 0;
+  var indice = 0;          // marea vigente
+  var siguiente = 1;       // a la que está virando
+  var cruce = 0;           // 0..1
+  var ultimoCambio = 0;
+  var oyentes = [];
+
+  function avisarMarea() {
+    var m = MAREAS[indice];
+    for (var i = 0; i < oyentes.length; i++) {
+      try { oyentes[i](m, indice); } catch (e) { /* un oyente roto no hunde el mar */ }
+    }
+  }
+
+  function pintar(dt) {
+    reloj += dt;
+
+    // ¿Toca virar de marea? (con ?marea= fija, nunca)
+    var desde = reloj - ultimoCambio;
+    if (!FIJA && desde > CICLO_MS / 1000) {
+      cruce = Math.min(1, (desde - CICLO_MS / 1000) / (CRUCE_MS / 1000));
+      if (cruce >= 1) {
+        indice = siguiente;
+        siguiente = (siguiente + 1) % MAREAS.length;
+        cruce = 0;
+        ultimoCambio = reloj;
+        avisarMarea();
+      }
+    }
+
+    var pa = paletaDe(MAREAS[indice], reloj);
+    var pb = paletaDe(MAREAS[siguiente], reloj);
+    var hondo = mezcla(pa.hondo, pb.hondo, cruce);
+    var horiz = mezcla(pa.horiz, pb.horiz, cruce);
+
+    // ── cielo ──
+    var cielo = ctx.createLinearGradient(0, 0, 0, H * 0.56);
+    cielo.addColorStop(0, rgb(mezcla(horiz, [3, 5, 10], 0.90)));
+    cielo.addColorStop(0.55, rgb(mezcla(horiz, [3, 5, 10], 0.72)));
+    cielo.addColorStop(1, rgb(mezcla(horiz, [255, 245, 220], 0.13)));
+    ctx.fillStyle = cielo;
+    ctx.fillRect(0, 0, W, H * 0.56);
+
+    // ── estrellas ──
+    for (var i = 0; i < estrellas.length; i++) {
+      var e = estrellas[i];
+      var brillo = e.base + Math.sin(reloj * e.vel + e.fase) * 0.28;
+      if (brillo <= 0.04) continue;
+      ctx.globalAlpha = Math.min(0.92, brillo) * 0.85;
+      ctx.fillStyle = '#fdf8ec';
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.r, 0, 6.283);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // ── luna (crema, como la del juego) ──
+    // La mordida de la fase se pinta CON EL COLOR DEL CIELO de esa altura:
+    // con 'destination-out' se abría un agujero al fondo negro del lienzo.
+    var lx = W * 0.82, ly = H * 0.155, lr = Math.max(26, Math.min(W, H) * 0.045);
+    var cieloLuna = mezcla(horiz, [3, 5, 10], 0.81);
+    var halo = ctx.createRadialGradient(lx, ly, lr * 0.5, lx, ly, lr * 4.6);
+    halo.addColorStop(0, 'rgba(255,246,222,0.17)');
+    halo.addColorStop(1, 'rgba(255,246,222,0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath(); ctx.arc(lx, ly, lr * 4.6, 0, 6.283); ctx.fill();
+    ctx.fillStyle = '#f7ecd2';
+    ctx.beginPath(); ctx.arc(lx, ly, lr, 0, 6.283); ctx.fill();
+    ctx.fillStyle = rgb(cieloLuna);
+    ctx.beginPath(); ctx.arc(lx - lr * 0.58, ly - lr * 0.2, lr * 0.9, 0, 6.283); ctx.fill();
+
+    // ── bruma del horizonte ──
+    var bruma = ctx.createLinearGradient(0, H * 0.40, 0, H * 0.60);
+    bruma.addColorStop(0, rgb(horiz, 0));
+    bruma.addColorStop(0.62, rgb(mezcla(horiz, [255, 255, 255], 0.16), 0.5));
+    bruma.addColorStop(1, rgb(horiz, 0));
+    ctx.fillStyle = bruma;
+    ctx.fillRect(0, H * 0.40, W, H * 0.21);
+
+    // ── el agua de fondo (lo que asoma entre hileras) ──
+    var fondo = ctx.createLinearGradient(0, H * 0.50, 0, H);
+    fondo.addColorStop(0, rgb(horiz));
+    fondo.addColorStop(1, rgb(hondo));
+    ctx.fillStyle = fondo;
+    ctx.fillRect(0, H * 0.50, W, H * 0.5);
+
+    // La raya del horizonte: sin ella el cielo y el agua son la misma mancha.
+    ctx.fillStyle = rgb(mezcla(horiz, [255, 250, 235], 0.34), 0.5);
+    ctx.fillRect(0, H * 0.50 - 1, W, 1.4);
+
+    // ── hileras + bestias intercaladas ──
+    poblar();
+    for (var c = 0; c < TIRAS.length; c++) {
+      // las bestias de esta capa se dibujan ANTES de su hilera: emergen de ella
+      for (var a = 0; a < apariciones.length; a++) {
+        if (apariciones[a].capa === c) {
+          dibujarAparicion(apariciones[a], H * TIRAS[c].y, H * TIRAS[c].alto);
+        }
+      }
+      var col = mezcla(horiz, hondo, TIRAS[c].mez);
+      // las cercanas, bastante más oscuras: así el agua tiene fondo y no es
+      // una lámina plana. Es el mismo truco de las tiras del juego.
+      col = mezcla(col, [0, 0, 0], 0.06 + TIRAS[c].mez * 0.46);
+      dibujarTira(TIRAS[c], col, reloj);
+    }
+
+    // ── viñeta ──
+    var vin = ctx.createRadialGradient(W / 2, H * 0.46, Math.min(W, H) * 0.34, W / 2, H * 0.5, Math.max(W, H) * 0.82);
+    vin.addColorStop(0, 'rgba(0,0,0,0)');
+    vin.addColorStop(1, 'rgba(0,0,0,0.62)');
+    ctx.fillStyle = vin;
+    ctx.fillRect(0, 0, W, H);
+
+    // limpieza de apariciones cumplidas
+    apariciones = apariciones.filter(function (a) {
+      return (reloj - a.nace) <= (a.sube + a.queda + a.baja);
+    });
+  }
+
+  // ── El bucle ──────────────────────────────────────────────────────────
+  var anterior = 0, corriendo = false;
+
+  function cuadro(ahora) {
+    if (!corriendo) return;
+    var dt = anterior ? Math.min((ahora - anterior) / 1000, 0.05) : 0.016;
+    anterior = ahora;
+    pintar(dt);
+    if (CAPTURA && ++cuadrosPintados > 80) { corriendo = false; return; }
+    requestAnimationFrame(cuadro);
+  }
+
+  function arrancar() {
+    if (corriendo) return;
+    corriendo = true;
+    anterior = 0;
+    requestAnimationFrame(cuadro);
+  }
+  function parar() { corriendo = false; }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) parar(); else arrancar();
+  });
+
+  var remedir;
+  window.addEventListener('resize', function () {
+    clearTimeout(remedir);
+    remedir = setTimeout(medir, 160);
+  });
+
+  // ?marea=<id>: el mar se queda en esa y no vira.
+  if (FIJA) {
+    for (var k = 0; k < MAREAS.length; k++) {
+      if (MAREAS[k].id === FIJA) { indice = k; siguiente = k; break; }
+    }
+  }
+
+  medir();
+  // Con "reduzca el movimiento" pintamos UN cuadro y lo dejamos quieto.
+  if (quieto) { pintar(0); } else { arrancar(); }
+
+  // ── Lo que el resto del sitio puede pedirle al mar ─────────────────────
+  window.Mar = {
+    MAREAS: MAREAS,
+    mareaActual: function () { return MAREAS[indice]; },
+    alCambiarMarea: function (fn) {
+      oyentes.push(fn);
+      fn(MAREAS[indice], indice);   // arranca sabiendo qué mar hay
+    },
+    rgb: rgb
+  };
+})();
