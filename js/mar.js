@@ -110,6 +110,7 @@
      sin ventana nunca se agota y la captura no llega a dispararse. */
   var CAPTURA = !!FLAGS.ir;
   var cuadrosPintados = 0;
+  var cuadrosEspera = 0;
 
   // ── Utilería de color ─────────────────────────────────────────────────
   function mezcla(a, b, t) {
@@ -234,14 +235,31 @@
     return (im && im.complete && im.naturalWidth) ? im : null;
   }
 
-  /* Las tres hileras cercanas van con PNG; las lejanas siguen dibujadas.
-     y = dónde flota · alto = cuánto mide · vel = px/s · estira = cuánto se
-     ensancha la tira respecto a la pantalla (ver abajo por qué). */
+  /* CINCO hileras de PNG (13 sep, pedido del usuario: "se ven espacios celestes
+     del fondo fijo, no de las olas png"). Antes eran tres y arrancaban en 0,64:
+     entre el horizonte (0,50) y esa primera hilera quedaba una franja del relleno
+     plano — el color claro del horizonte — que se leía como cielo tumbado, no como
+     agua. Ahora el agua entera lleva tira, desde 0,508 hasta pasado el borde de
+     abajo, y cada hilera EMPIEZA antes de que acabe la anterior (se solapan: una
+     costura entre dos hileras vuelve a ser una banda plana).
+     y = dónde flota · alto = cuánto mide · vel = px/s · alfa = cuánto se entrega
+     (las de lejos poco: el degradado tiene que seguir dando la distancia) ·
+     estira = cuánto se ensancha respecto a la pantalla (ver abajo por qué). */
+  /* EL SOLAPE, medido con la tira en la mano: el PNG trae su cuarto de arriba en
+     degradado (la cresta: alfa 0 -> 1 en el 24% superior) y el resto opaco. Si
+     una hilera empieza donde acaba la anterior, ese cuarto transparente deja ver
+     el relleno y aparece una banda plana — el mismo defecto de antes, más abajo.
+     Cada hilera arranca sobre el último tercio de la de arriba, para que su parte
+     OPACA tape el filo de la anterior. */
   var HILERAS = [
-    { y: 0.640, alto: 0.105, vel: 11, alfa: 0.55, estira: 1.15 },
-    { y: 0.748, alto: 0.150, vel: 25, alfa: 0.78, estira: 1.45 },
-    { y: 0.882, alto: 0.215, vel: 48, alfa: 0.95, estira: 1.9 }
+    { y: 0.504, alto: 0.070, vel: 4,  alfa: 0.55, estira: 0.62 },
+    { y: 0.540, alto: 0.095, vel: 8,  alfa: 0.68, estira: 0.80 },
+    { y: 0.600, alto: 0.130, vel: 14, alfa: 0.80, estira: 1.05 },
+    { y: 0.680, alto: 0.180, vel: 27, alfa: 0.90, estira: 1.45 },
+    { y: 0.790, alto: 0.265, vel: 48, alfa: 0.98, estira: 1.90 }
   ];
+  // Capas donde puede asomar una bestia: las 2 hileras dibujadas del fondo + las 5 de tira.
+  var CAPAS = 2 + HILERAS.length;
 
   /* Dibuja una tira repetida a lo ancho. El PNG trae la cresta arriba, así
      que su borde superior ES la línea de flotación de esa hilera.
@@ -256,7 +274,7 @@
     var ancho = Math.max(alto * (im.naturalWidth / im.naturalHeight), W * hilera.estira);
     if (ancho < 1) return;
     var y = H * hilera.y;
-    var corr = (reloj * hilera.vel) % ancho;
+    var corr = (reloj * hilera.vel) % (ancho * 2);   // dos anchos: el ciclo del espejo
     var x = -corr;
 
     ctx.save();
@@ -265,8 +283,24 @@
       ctx.filter = 'hue-rotate(' + Math.round((reloj * 26 + (desfaseIris || 0)) % 360) +
                    'deg) saturate(1.5)';
     }
-    // Una copia de más por la derecha: al desplazarse no debe abrirse hueco.
-    for (; x < W; x += ancho) ctx.drawImage(im, x, y, ancho, alto);
+    /* EL ESPEJO: la tira no empalma consigo misma (su borde izquierdo no es la
+       continuación del derecho), así que cada repetición dejaba una COSTURA
+       vertical — muy visible en las hileras de lejos, que repiten más. Las
+       copias impares se pintan del revés: entonces cada junta enfrenta un borde
+       con su propio reflejo y encaja por construcción. De paso el patrón dura
+       el doble, que es justo lo que pide la regla del estirón. */
+    var copia = 0;
+    for (; x < W; x += ancho, copia++) {
+      if (copia % 2 === 0) {
+        ctx.drawImage(im, x, y, ancho, alto);
+      } else {
+        ctx.save();                       // conserva alfa y filtro de fuera
+        ctx.translate(x + ancho, y);
+        ctx.scale(-1, 1);
+        ctx.drawImage(im, 0, 0, ancho, alto);
+        ctx.restore();
+      }
+    }
     ctx.restore();
   }
 
@@ -283,7 +317,8 @@
 
     // Capa: entre qué hileras asoma (0 = al fondo). Las grandes salen CERCA,
     // nunca junto al horizonte: una bestia pequeña y alta se lee como pegatina.
-    var capa = grupo === 'pequenas' ? 1 : (grupo === 'medianas' ? 2 : 3 + Math.floor(Math.random() * 2));
+    var capa = grupo === 'pequenas' ? 2 + Math.floor(Math.random() * 2)
+      : (grupo === 'medianas' ? 4 + Math.floor(Math.random() * 2) : 6);
     // Altura fuera del agua, en fracción de pantalla. Contenida a propósito:
     // el mar es el fondo de una web, no el escenario de una pelea.
     var alto = grupo === 'pequenas' ? 0.042 : (grupo === 'medianas' ? 0.075 : 0.115 + Math.random() * 0.055);
@@ -346,7 +381,7 @@
 
     ctx.save();
     // Las de más lejos se entregan menos: la distancia también es niebla.
-    var lejania = 1 - a.capa / (TIRAS.length - 1);
+    var lejania = 1 - a.capa / (CAPAS - 1);
     ctx.globalAlpha = Math.min(1, f * 1.6) * (0.92 - lejania * 0.22);
     // Recorte: lo que queda bajo la línea del agua no se ve.
     ctx.beginPath();
@@ -372,12 +407,18 @@
 
   // ── Las hileras de olas ───────────────────────────────────────────────
   // De lejos a cerca: más abajo, más altas, más rápidas y más hondas de color.
+  // SIETE filas: las dos primeras se pintan siempre (son el degradado hacia el
+  // horizonte) y las cinco siguientes son el respaldo de cada hilera de PNG,
+  // por si la tira aún viaja por la red. Una por hilera: antes había cinco para
+  // tres hileras y la cuenta 2+h se habría salido de la tabla.
   var TIRAS = [
-    { y: 0.520, amp: 0.0075, onda: 0.0042, vel: 0.16, mez: 0.00, alto: 0.10 },
-    { y: 0.590, amp: 0.0120, onda: 0.0060, vel: 0.26, mez: 0.26, alto: 0.13 },
-    { y: 0.680, amp: 0.0190, onda: 0.0082, vel: 0.40, mez: 0.52, alto: 0.16 },
-    { y: 0.790, amp: 0.0280, onda: 0.0110, vel: 0.60, mez: 0.78, alto: 0.20 },
-    { y: 0.910, amp: 0.0400, onda: 0.0150, vel: 0.88, mez: 1.00, alto: 0.26 }
+    { y: 0.512, amp: 0.0060, onda: 0.0038, vel: 0.14, mez: 0.00, alto: 0.09 },
+    { y: 0.545, amp: 0.0085, onda: 0.0048, vel: 0.20, mez: 0.16, alto: 0.11 },
+    { y: 0.588, amp: 0.0120, onda: 0.0060, vel: 0.28, mez: 0.34, alto: 0.13 },
+    { y: 0.645, amp: 0.0175, onda: 0.0080, vel: 0.40, mez: 0.52, alto: 0.16 },
+    { y: 0.718, amp: 0.0250, onda: 0.0105, vel: 0.58, mez: 0.70, alto: 0.20 },
+    { y: 0.805, amp: 0.0330, onda: 0.0130, vel: 0.74, mez: 0.86, alto: 0.23 },
+    { y: 0.908, amp: 0.0420, onda: 0.0155, vel: 0.90, mez: 1.00, alto: 0.26 }
   ];
 
   function dibujarTira(tira, color, t) {
@@ -492,10 +533,15 @@
     ctx.fillStyle = bruma;
     ctx.fillRect(0, H * 0.40, W, H * 0.21);
 
-    // ── el agua de fondo (lo que asoma entre hileras) ──
+    /* ── el agua de fondo (lo que asoma entre hileras) ──
+       El color del horizonte es CLARO a propósito (es la distancia), pero
+       extendido media pantalla hacia abajo se leía como un cielo tumbado. Aquí
+       se hunde rápido: claro solo en el filo del horizonte y agua honda en
+       seguida, que es lo que el ojo espera debajo de las olas. */
     var fondo = ctx.createLinearGradient(0, H * 0.50, 0, H);
     fondo.addColorStop(0, rgb(horiz));
-    fondo.addColorStop(1, rgb(hondo));
+    fondo.addColorStop(0.12, rgb(mezcla(horiz, hondo, 0.55)));
+    fondo.addColorStop(1, rgb(mezcla(hondo, [0, 0, 0], 0.18)));
     ctx.fillStyle = fondo;
     ctx.fillRect(0, H * 0.50, W, H * 0.5);
 
@@ -517,8 +563,10 @@
     //     el horizonte, donde un PNG repetido se notaría como un patrón.
     for (var c = 0; c < 2; c++) {
       bestiasDe(c, H * TIRAS[c].y);
-      var col = mezcla(horiz, hondo, TIRAS[c].mez);
-      col = mezcla(col, [0, 0, 0], 0.06 + TIRAS[c].mez * 0.46);
+      // Hacia hondo desde el primer paso: en la primera fila el color era el del
+      // horizonte a pelo y esa franja salía celeste bajo las tiras de arriba.
+      var col = mezcla(horiz, hondo, 0.16 + TIRAS[c].mez * 0.84);
+      col = mezcla(col, [0, 0, 0], 0.14 + TIRAS[c].mez * 0.40);
       dibujarTira(TIRAS[c], col, reloj);
     }
 
@@ -565,7 +613,14 @@
     var dt = anterior ? Math.min((ahora - anterior) / 1000, 0.05) : 0.016;
     anterior = ahora;
     pintar(dt);
-    if (CAPTURA && ++cuadrosPintados > 80) { corriendo = false; return; }
+    if (CAPTURA) {
+      /* La foto NO se da por buena hasta que la tira de agua está: el respaldo
+         dibujado llega siempre antes que el PNG, y las capturas salían con el
+         mar en bandas planas (justo lo que se fue a arreglar). Con un seguro:
+         si la tira no llega nunca, se entrega lo que haya. */
+      if (tiraLista(MAREAS[indice].tira) || ++cuadrosEspera > 400) cuadrosPintados++;
+      if (cuadrosPintados > 60) { corriendo = false; return; }
+    }
     requestAnimationFrame(cuadro);
   }
 
@@ -593,6 +648,11 @@
       if (MAREAS[k].id === FIJA) { indice = k; siguiente = k; break; }
     }
   }
+
+  // Las tiras de la marea de ahora y de la siguiente se piden YA: pedirlas en el
+  // primer cuadro dejaba el mar con las olas de respaldo hasta que llegaban.
+  cargarTira(MAREAS[indice].tira);
+  cargarTira(MAREAS[siguiente].tira);
 
   medir();
   // Con "reduzca el movimiento" pintamos UN cuadro y lo dejamos quieto.

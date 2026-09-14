@@ -57,7 +57,7 @@
 
 <!-- Barra superior -->
 <header class="barra">
-  <a class="barra__marca" href="#top">
+  <a class="barra__marca" href="#portada">
     <span class="barra__sss">SSS</span>
     <span class="barra__nombre">Sweet Sweet Sea</span>
   </a>
@@ -81,20 +81,16 @@
 
 <main id="top">
 
-  <!-- ═══════════ HÉROE ═══════════ -->
-  <section class="heroe">
+  <!-- ═══════════ PORTADA — la pantalla de cubierta ═══════════ -->
+  <section id="portada" class="heroe pantalla activa">
     <div class="heroe__centro">
       <img class="heroe__logo" src="assets/logo.webp" alt="Sweet Sweet Sea" width="1280" height="427" fetchpriority="high">
-      <p class="heroe__lema">
+      <!-- El único H1 del sitio: hasta ahora el título era una IMAGEN y la
+           página no tenía encabezado de nivel 1 para nadie que no la viera. -->
+      <h1 class="heroe__lema">
         <span class="es">Un pirata pobre. Un mar que miente.</span>
         <span class="en">A poor pirate. A sea that lies.</span>
-      </p>
-      <p class="heroe__bajada">
-        <span class="es">Pesca de día, defiende el muelle de noche, doma a las bestias del abismo
-          y junta las tres llaves de la Puerta Hundida. Cada vuelta el mar recuerda… y muerde más fuerte.</span>
-        <span class="en">Fish by day, hold the pier by night, tame the beasts of the abyss and gather
-          the three keys to the Sunken Gate. Each loop the sea remembers… and bites harder.</span>
-      </p>
+      </h1>
       <div class="heroe__botones">
         <a class="boton boton--oro" href="#jugar">
           <span class="es">Conseguir el juego</span><span class="en">Get the game</span>
@@ -109,19 +105,48 @@
       </p>
     </div>
 
+    <!-- LOS RUMBOS — el índice del sitio. Cada uno abre SU pantalla: la
+         portada no lleva texto largo a propósito (el mar y sus bestias son
+         el contenido de aquí; lo que hay que leer vive una pantalla dentro). -->
+    <nav class="rumbos" aria-label="Secciones">
+      <a class="rumbo" href="#juego">
+        <span class="rumbo__nombre"><span class="es">El juego</span><span class="en">The game</span></span>
+        <span class="rumbo__pie"><span class="es">pescar, domar, aguantar</span><span class="en">fish, tame, endure</span></span>
+      </a>
+      <a class="rumbo" href="#bestiario">
+        <span class="rumbo__nombre"><span class="es">Bestiario</span><span class="en">Bestiary</span></span>
+        <span class="rumbo__pie"><span class="es">lo que sube del fondo</span><span class="en">what rises from below</span></span>
+      </a>
+      <a class="rumbo" href="#noche">
+        <span class="rumbo__nombre"><span class="es">La noche</span><span class="en">The night</span></span>
+        <span class="rumbo__pie"><span class="es">insomnio, asedio, tinta</span><span class="en">insomnia, siege, ink</span></span>
+      </a>
+      <a class="rumbo" href="#mareas">
+        <span class="rumbo__nombre"><span class="es">Mareas</span><span class="en">Tides</span></span>
+        <span class="rumbo__pie"><span class="es">seis aguas, seis reglas</span><span class="en">six waters, six rules</span></span>
+      </a>
+      <a class="rumbo rumbo--oro" href="#jugar">
+        <span class="rumbo__nombre"><span class="es">Jugar</span><span class="en">Play</span></span>
+        <span class="rumbo__pie"><span class="es">Android · PC · Steam</span><span class="en">Android · PC · Steam</span></span>
+      </a>
+    </nav>
+
     <!-- Rótulo de la marea viva -->
     <div id="rotulo-marea" class="marea-rotulo" aria-live="polite">
       <span class="marea-rotulo__ojo"><span class="es">El mar hoy</span><span class="en">The sea today</span></span>
       <strong id="marea-nombre" class="marea-rotulo__nombre">Mar en calma</strong>
       <span id="marea-nota" class="marea-rotulo__nota"></span>
     </div>
-
-    <a class="heroe__flecha" href="#juego" aria-label="Bajar"><span></span></a>
   </section>
 
   <!-- ═══════════ EL JUEGO ═══════════ -->
-  <section id="juego" class="seccion">
+  <section id="juego" class="seccion pantalla">
     <div class="envoltura">
+      <p class="pantalla__ruta">
+        <a class="pantalla__volver" href="#portada">
+          <span class="es">Volver al mar</span><span class="en">Back to the sea</span>
+        </a>
+      </p>
       <h2 class="titulo">
         <span class="es">El mar miente</span>
         <span class="en">The sea lies</span>
@@ -185,12 +210,44 @@
             it deepens it. Fiercer beasts, new playable sailors.</span></p>
         </article>
       </div>
+
+      <!-- (venía de su propia sección: una pantalla de tres fotos sueltas
+           era la más flaca del sitio, y aquí ilustra lo que acaba de contar) -->
+      <h3 class="subtitulo"><span class="es">El puerto, la caja y la caña</span><span class="en">The port, the crate and the rod</span></h3>
+      <div class="capturas">
+        <figure>
+          <img src="assets/capturas/muelle.webp" alt="" loading="lazy" width="1351" height="760">
+          <figcaption><span class="es">El muelle de noche: banco, astillero, la draga y la adivina.</span>
+            <span class="en">The pier at night: bank, shipyard, the dredge and the fortune-teller.</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/capturas/bestias.webp" alt="" loading="lazy" width="1351" height="760">
+          <figcaption><span class="es">La caja de peces: tus bestias crecen, comen y con la edad piden mejor pesca.</span>
+            <span class="en">The fish crate: your beasts grow, eat, and with age demand better catches.</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/capturas/pesca.webp" alt="" loading="lazy" width="1351" height="760">
+          <figcaption><span class="es">El forcejeo: la barra manda, y el pez no afloja.</span>
+            <span class="en">The tug-of-war: the bar commands, and the fish won't give.</span></figcaption>
+        </figure>
+      </div>
+
+      <nav class="pantalla__sigue">
+        <a href="#bestiario">
+          <span class="es">Siguiente: Bestiario</span><span class="en">Next: Bestiary</span>
+        </a>
+      </nav>
     </div>
   </section>
 
   <!-- ═══════════ BESTIARIO ═══════════ -->
-  <section id="bestiario" class="seccion seccion--honda">
+  <section id="bestiario" class="seccion pantalla seccion--honda">
     <div class="envoltura">
+      <p class="pantalla__ruta">
+        <a class="pantalla__volver" href="#portada">
+          <span class="es">Volver al mar</span><span class="en">Back to the sea</span>
+        </a>
+      </p>
       <h2 class="titulo">
         <span class="es">Lo que sube del fondo</span>
         <span class="en">What rises from below</span>
@@ -277,12 +334,23 @@
         <li class="mutaciones__iris"><b><span class="es">Prismática</span><span class="en">Prismatic</span></b>
           <span class="es">todos los colores · oro ×4 · una ★ extra</span><span class="en">all colours · gold ×4 · one extra ★</span></li>
       </ul>
+
+      <nav class="pantalla__sigue">
+        <a href="#noche">
+          <span class="es">Siguiente: La noche</span><span class="en">Next: The night</span>
+        </a>
+      </nav>
     </div>
   </section>
 
   <!-- ═══════════ LA NOCHE ═══════════ -->
-  <section id="noche" class="seccion seccion--noche">
+  <section id="noche" class="seccion pantalla seccion--noche">
     <div class="envoltura">
+      <p class="pantalla__ruta">
+        <a class="pantalla__volver" href="#portada">
+          <span class="es">Volver al mar</span><span class="en">Back to the sea</span>
+        </a>
+      </p>
       <h2 class="titulo">
         <span class="es">Cuando cae la noche</span>
         <span class="en">When night falls</span>
@@ -404,12 +472,23 @@
           <span class="es">el muelle entero compra y vende distinto por un día</span>
           <span class="en">the whole pier buys and sells differently for a day</span></li>
       </ul>
+
+      <nav class="pantalla__sigue">
+        <a href="#mareas">
+          <span class="es">Siguiente: Las mareas</span><span class="en">Next: The tides</span>
+        </a>
+      </nav>
     </div>
   </section>
 
   <!-- ═══════════ MAREAS ═══════════ -->
-  <section id="mareas" class="seccion">
+  <section id="mareas" class="seccion pantalla">
     <div class="envoltura">
+      <p class="pantalla__ruta">
+        <a class="pantalla__volver" href="#portada">
+          <span class="es">Volver al mar</span><span class="en">Back to the sea</span>
+        </a>
+      </p>
       <h2 class="titulo">
         <span class="es">Las seis mareas</span>
         <span class="en">The six tides</span>
@@ -426,36 +505,23 @@
       </p>
 
       <ul class="mareas" id="lista-mareas"><!-- la puebla js/sitio.js desde la misma tabla que pinta el mar --></ul>
-    </div>
-  </section>
 
-  <!-- ═══════════ CAPTURAS ═══════════ -->
-  <section class="seccion seccion--honda">
-    <div class="envoltura">
-      <h2 class="titulo"><span class="es">El puerto, la caja y la caña</span><span class="en">The port, the crate and the rod</span></h2>
-      <div class="capturas">
-        <figure>
-          <img src="assets/capturas/muelle.webp" alt="" loading="lazy" width="1351" height="760">
-          <figcaption><span class="es">El muelle de noche: banco, astillero, la draga y la adivina.</span>
-            <span class="en">The pier at night: bank, shipyard, the dredge and the fortune-teller.</span></figcaption>
-        </figure>
-        <figure>
-          <img src="assets/capturas/bestias.webp" alt="" loading="lazy" width="1351" height="760">
-          <figcaption><span class="es">La caja de peces: tus bestias crecen, comen y con la edad piden mejor pesca.</span>
-            <span class="en">The fish crate: your beasts grow, eat, and with age demand better catches.</span></figcaption>
-        </figure>
-        <figure>
-          <img src="assets/capturas/pesca.webp" alt="" loading="lazy" width="1351" height="760">
-          <figcaption><span class="es">El forcejeo: la barra manda, y el pez no afloja.</span>
-            <span class="en">The tug-of-war: the bar commands, and the fish won't give.</span></figcaption>
-        </figure>
-      </div>
+      <nav class="pantalla__sigue">
+        <a href="#jugar">
+          <span class="es">Siguiente: Dónde jugar</span><span class="en">Next: Where to play</span>
+        </a>
+      </nav>
     </div>
   </section>
 
   <!-- ═══════════ JUGAR ═══════════ -->
-  <section id="jugar" class="seccion">
+  <section id="jugar" class="seccion pantalla">
     <div class="envoltura">
+      <p class="pantalla__ruta">
+        <a class="pantalla__volver" href="#portada">
+          <span class="es">Volver al mar</span><span class="en">Back to the sea</span>
+        </a>
+      </p>
       <h2 class="titulo"><span class="es">Dónde zarpar</span><span class="en">Where to set sail</span></h2>
 
       <div class="tiendas">
@@ -500,13 +566,9 @@
         <span class="en">No ads. No in-app purchases. No accounts. No data collection —
           <a href="privacidad.html">and here's the policy that says so</a>.</span>
       </p>
-    </div>
-  </section>
 
-  <!-- ═══════════ TRIPULACIÓN (hueco preparado para el captcha) ═══════════ -->
-  <section id="tripulacion" class="seccion seccion--honda">
-    <div class="envoltura envoltura--angosta">
-      <h2 class="titulo"><span class="es">Avisarme del zarpe</span><span class="en">Tell me when it sails</span></h2>
+      <div class="envoltura--angosta">
+      <h3 class="subtitulo"><span class="es">Avisarme del zarpe</span><span class="en">Tell me when it sails</span></h3>
       <p class="parrafo parrafo--centro">
         <span class="es">Todavía no hay lista de correo: no recogemos datos de nadie. Cuando la ficha de Steam
           esté publicada, este hueco tendrá el botón de lista de deseados. Mientras tanto, escríbenos.</span>
@@ -525,6 +587,8 @@
       <p class="contacto">
         <a class="boton boton--fantasma" href="mailto:empresa@byditsolutions.com?subject=Sweet%20Sweet%20Sea">empresa@byditsolutions.com</a>
       </p>
+
+      </div>
     </div>
   </section>
 

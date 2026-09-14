@@ -131,6 +131,82 @@
     setTimeout(function () { document.documentElement.classList.add('suave'); }, 120);
   });
 
+  /* ── LAS PANTALLAS ────────────────────────────────────────────────────
+     El sitio se recorre como el menú de un juego: la portada es la cubierta y
+     cada sección se abre encima del mar, de una en una. La dirección manda
+     (#bestiario abre el bestiario), así que los enlaces de siempre —los de la
+     barra, los del héroe, los que alguien tenga guardados— siguen valiendo.
+
+     REGLA DE LA CASA: el contenido nunca puede quedarse invisible. Esconder
+     pantallas es cosa del atributo data-pantallas, y lo pone ESTE código: si el
+     JS no corre, el CSS no esconde nada y la página se lee entera de un tirón.
+     Y con ?tira=1 (la foto de la página completa) tampoco se esconde nada. */
+  var Pantallas = (function () {
+    var lista = document.querySelectorAll('.pantalla');
+    if (!lista.length) return null;
+
+    var q = null;
+    try { q = new URLSearchParams(location.search); } catch (e) {}
+    if (q && q.get('tira') === '1') return null;   // la toma larga las quiere todas
+
+    document.documentElement.setAttribute('data-pantallas', '');
+
+    function existe(id) {
+      if (!id) return null;
+      var el = document.getElementById(String(id).replace(/^#/, ''));
+      return (el && el.classList.contains('pantalla')) ? el : null;
+    }
+    function delHash() {
+      var el = existe(location.hash);
+      return el ? el.id : null;
+    }
+
+    /* Las apariciones de la pantalla que se abre, escalonadas: es la animación
+       que sustituye al desplazamiento largo de antes. Se rearman en cada
+       visita (quitar y volver a poner .visible) para que abrir una pantalla
+       siempre se sienta como abrirla. */
+    function destapar(el) {
+      var partes = el.querySelectorAll('.aparece');
+      Array.prototype.forEach.call(partes, function (parte, i) {
+        parte.classList.remove('visible');
+        setTimeout(function () { parte.classList.add('visible'); }, 70 + Math.min(i, 12) * 55);
+      });
+    }
+
+    var actual = '';
+
+    function abrir(id, subir) {
+      var el = existe(id) || existe('portada');
+      if (!el || el.id === actual) return;
+      actual = el.id;
+      Array.prototype.forEach.call(lista, function (p) {
+        p.classList.toggle('activa', p === el);
+      });
+      cuerpo.setAttribute('data-pantalla', el.id);
+      Array.prototype.forEach.call(document.querySelectorAll('.barra__nav a'), function (a) {
+        if (a.getAttribute('href') === '#' + el.id) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+      if (subir) window.scrollTo(0, 0);
+      destapar(el);
+    }
+
+    window.addEventListener('hashchange', function () {
+      abrir(delHash() || 'portada', true);
+    });
+
+    // Escapar vuelve a cubierta (el telón tiene su propio Escape y manda él).
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || actual === 'portada') return;
+      if (telon && !telon.hidden) return;
+      location.hash = '#portada';
+    });
+
+    // De arranque: la dirección, luego el flag de captura ?ir=, luego cubierta.
+    abrir(delHash() || (q && existe(q.get('ir')) ? q.get('ir') : null) || 'portada', false);
+    return { abrir: abrir, actual: function () { return actual; } };
+  })();
+
   /* ?ir=<id> — flag de captura. Un navegador sin ventana ignora el ancla de
      la URL, y las imágenes perezosas mueven el suelo mientras cargan: este
      flag las trae todas de golpe y reafirma la posición hasta que el alto
@@ -147,7 +223,12 @@
     var golpes = 0;
     var fijar = setInterval(function () {
       var el = document.getElementById(destinoId);
-      if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.pageYOffset);
+      // Con las pantallas, la sección pedida ya está arriba del todo: solo hay
+      // que reafirmar la posición mientras las imágenes asientan el alto.
+      if (el) {
+        var arriba = el.classList.contains('pantalla') && el.classList.contains('activa');
+        window.scrollTo(0, arriba ? 0 : el.getBoundingClientRect().top + window.pageYOffset);
+      }
       if (++golpes > 24) clearInterval(fijar);
     }, 100);
   })();

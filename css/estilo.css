@@ -203,7 +203,23 @@ main, .barra, .pie { position: relative; z-index: 2; }
    en una sola toma larga. No lo usa nadie más. */
 body.tira .heroe { min-height: 620px; }
 
-.heroe__centro { max-width: 780px; }
+.heroe__centro { max-width: 780px; position: relative; }
+
+/* EL HALO DEL HÉROE. El velo de la portada pesa poco a propósito, pero el mar
+   cambia de marea cada veinte segundos: sobre la dorada o la de leche —aguas
+   CLARAS— el lema y los botones se desvanecían. Este halo va pegado al texto,
+   así que da igual de qué color venga el agua debajo. */
+.heroe__centro::before {
+  content: "";
+  position: absolute;
+  inset: -46px -70px -34px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center,
+      rgba(4, 7, 12, .86) 0%,
+      rgba(4, 7, 12, .70) 48%,
+      rgba(4, 7, 12, 0) 78%);
+}
 
 .heroe__logo {
   width: min(660px, 92vw);
@@ -223,14 +239,6 @@ body.tira .heroe { min-height: 620px; }
   text-shadow: 0 3px 18px rgba(0, 0, 0, .95);
 }
 
-.heroe__bajada {
-  font-size: clamp(1rem, 2.1vw, 1.17rem);
-  color: var(--hueso);
-  margin: 0 auto 32px;
-  max-width: 620px;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, .95), 0 0 34px rgba(0, 0, 0, .8);
-}
-
 .heroe__botones {
   display: flex;
   gap: 14px;
@@ -248,25 +256,8 @@ body.tira .heroe { min-height: 620px; }
 }
 .heroe__plataformas b { color: var(--oro-vivo); }
 
-/* Flecha de bajada */
-.heroe__flecha {
-  position: absolute;
-  bottom: 26px; left: 50%;
-  transform: translateX(-50%);
-  width: 34px; height: 34px;
-  display: grid; place-items: center;
-}
-.heroe__flecha span {
-  width: 11px; height: 11px;
-  border-right: 2px solid var(--oro);
-  border-bottom: 2px solid var(--oro);
-  transform: rotate(45deg);
-  animation: bajar 2.4s ease-in-out infinite;
-}
-@keyframes bajar {
-  0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: .45; }
-  50%      { transform: rotate(45deg) translate(4px, 4px); opacity: 1; }
-}
+/* (La flecha de bajada murió con el desplazamiento largo: la portada ya no
+   tiene nada debajo, los rumbos son la salida.) */
 
 
 /* ═══════════════ RÓTULO DE MAREA ═══════════════ */
@@ -1005,6 +996,143 @@ body.tira .heroe { min-height: 620px; }
 }
 
 
+/* ═══════════════ PANTALLAS ═══════════════ */
+/* El sitio se lee como el menú de un juego: la PORTADA es la cubierta (logo,
+   lema, los rumbos y el mar vivo detrás) y cada sección es una pantalla que se
+   abre encima del agua. Antes todo vivía en un solo desplazamiento y la
+   portada acababa siendo una pared de texto; ahora lo que hay que leer está
+   siempre a un clic, pero nunca encima.
+
+   SIN JAVASCRIPT NO SE ESCONDE NADA: el atributo data-pantallas lo pone
+   js/sitio.js, así que quien llegue con el JS caído (o un buscador) sigue
+   leyendo la página entera de arriba abajo, como antes. */
+html[data-pantallas] .pantalla:not(.activa) { display: none; }
+html[data-pantallas] .pantalla.activa {
+  animation: pantalla-entra .5s cubic-bezier(.2, .7, .3, 1) both;
+}
+@keyframes pantalla-entra {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Volver — arriba de cada pantalla */
+.pantalla__ruta { margin: 0 0 10px; }
+.pantalla__volver {
+  font-family: var(--titulo);
+  font-size: .74rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--apagado);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 3px;
+  transition: color .25s ease, border-color .25s ease;
+}
+.pantalla__volver::before { content: "←"; margin-right: 9px; color: var(--oro); }
+.pantalla__volver:hover { color: var(--oro-palido); border-bottom-color: var(--oro-tenue); }
+
+/* Siguiente — al pie, para leerlas en cadena sin volver a la portada */
+.pantalla__sigue {
+  margin-top: clamp(40px, 6vw, 76px);
+  padding-top: 20px;
+  border-top: 1px solid rgba(201, 162, 39, .16);
+  text-align: right;
+}
+.pantalla__sigue a {
+  font-family: var(--titulo);
+  font-size: .84rem;
+  letter-spacing: .1em;
+  color: var(--tenue);
+  text-decoration: none;
+  transition: color .25s ease;
+}
+.pantalla__sigue a::after { content: "→"; margin-left: 10px; color: var(--oro); }
+.pantalla__sigue a:hover { color: var(--oro-palido); }
+
+/* La barra señala la pantalla abierta */
+.barra__nav a[aria-current="page"] {
+  color: var(--oro-vivo);
+  border-bottom-color: var(--oro);
+}
+
+
+/* ═══════════════ LOS RUMBOS (índice de la portada) ═══════════════ */
+
+.rumbos {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  width: min(980px, 94vw);
+  margin: clamp(28px, 5vh, 54px) auto 0;
+}
+.rumbo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px 12px;
+  text-align: center;
+  text-decoration: none;
+  background: rgba(4, 9, 16, .80);
+  border: 1px solid rgba(201, 162, 39, .22);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .45);
+  border-radius: var(--radio);
+  backdrop-filter: blur(2px);
+  transition: transform .3s cubic-bezier(.2, .7, .3, 1), border-color .3s ease, background .3s ease;
+}
+.rumbo:hover,
+.rumbo:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--oro);
+  background: rgba(11, 28, 46, .82);
+}
+.rumbo__nombre {
+  font-family: var(--titulo);
+  font-size: .97rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: var(--oro-palido);
+}
+.rumbo__pie {
+  font-size: .81rem;
+  line-height: 1.3;
+  color: var(--tenue);
+}
+.rumbo--oro {
+  border-color: var(--oro-tenue);
+  background: linear-gradient(180deg, rgba(28, 22, 6, .72), rgba(4, 9, 16, .72));
+}
+
+/* EL VELO CAMBIA CON LA PANTALLA. En la portada pesa menos —ahí el mar ES el
+   contenido—; en las de leer se cierra, porque un párrafo largo sobre agua
+   clara no hay quien lo lea (se vio en la primera foto de "El juego"). */
+body[data-pantalla="portada"] .mar__velo {
+  background: linear-gradient(180deg,
+      rgba(4, 7, 12, 0) 0%,
+      rgba(4, 7, 12, 0) 46%,
+      rgba(4, 7, 12, .40) 68%,
+      rgba(4, 7, 12, .72) 100%);
+}
+body[data-pantalla]:not([data-pantalla="portada"]) .mar__velo {
+  background: linear-gradient(180deg,
+      rgba(4, 7, 12, .62) 0%,
+      rgba(4, 7, 12, .68) 38%,
+      rgba(4, 7, 12, .84) 68%,
+      rgba(4, 7, 12, .93) 100%);
+}
+
+/* Sobre el agua clara de la portada, el botón fantasma se desvanecía del todo:
+   necesita fondo propio. */
+body[data-pantalla="portada"] .boton--fantasma {
+  background: rgba(4, 9, 16, .62);
+  border-color: var(--oro-tenue);
+  color: var(--oro-palido);
+  backdrop-filter: blur(2px);
+}
+body[data-pantalla="portada"] .heroe__plataformas {
+  text-shadow: 0 2px 4px #04070c, 0 2px 16px rgba(0, 0, 0, .95);
+}
+
+
 /* ═══════════════ APARICIONES AL DESPLAZAR ═══════════════ */
 
 .aparece {
@@ -1036,7 +1164,12 @@ body.tira .heroe { min-height: 620px; }
     border-top: 2px solid var(--marea-acento, var(--oro));
   }
   .heroe { padding-bottom: 72px; }
-  .heroe__flecha { display: none; }
+
+  /* Sin barra de navegación en el móvil, los rumbos SON el menú: a dos
+     columnas y el de Jugar cruzando la fila (queda impar de los cinco). */
+  .rumbos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .rumbo--oro { grid-column: 1 / -1; }
+  .pantalla__sigue { text-align: center; }
 
   .pie__filas { flex-direction: column; text-align: center; }
   .pie__nav { justify-content: center; }
