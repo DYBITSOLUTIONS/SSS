@@ -158,7 +158,11 @@
   var quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function medir() {
-    DPR = Math.min(window.devicePixelRatio || 1, window.innerWidth < 820 ? 1.5 : 2);
+    /* Densidad del lienzo. Estaba en 2 en escritorio: en una pantalla grande eso
+       es pintar el CUÁDRUPLE de píxeles sesenta veces por segundo, y el mar es
+       un fondo, no el contenido. A 1,5 no se nota la diferencia y baja casi a
+       la mitad el trabajo de cada cuadro. */
+    DPR = Math.min(window.devicePixelRatio || 1, window.innerWidth < 820 ? 1.25 : 1.5);
     W = window.innerWidth;
     H = window.innerHeight;
     lienzo.width = Math.round(W * DPR);
@@ -191,7 +195,13 @@
   // Cada aparición nace bajo la línea del agua, sube, se queda mirando y
   // se vuelve a hundir — las "presencias del horizonte" del juego.
   var ARCHIVOS = {
-    grandes: ['leviatan', 'kraken', 'serpiente', 'calamar', 'ballena'],
+    /* LOS COLOSOS salen aparte (pedido del usuario): el Leviatán y el Kraken no
+       son bestias grandes, son OTRA cosa. Emergen en las hileras del FONDO y
+       ocupan un tercio de la pantalla — a esa distancia, ese tamaño solo puede
+       ser algo imposible. Suben despacio, se quedan mucho y van oscuros: a
+       contraluz contra el cielo, como las presencias del horizonte del juego. */
+    colosos: ['leviatan', 'kraken'],
+    grandes: ['serpiente', 'calamar', 'ballena'],
     medianas: ['megalodon', 'tentaculo', 'serpiente_verde', 'sirena_verde'],
     // El fondo tenía seis bichos pequeños y se repetían: ahora son diecisiete,
     // todos criaturas reales del juego (los corales andantes, el cangrejo, el
@@ -204,7 +214,14 @@
     'globo', 'luminoso', 'medusa', 'sardina', 'tiburon'];
   var BARCAS = ['velero', 'galeon', 'barca', 'balsa'];
   var DERIVA = ['boya', 'barril', 'algas', 'huesos', 'maderos'];
-  var SILUETAS = ['isla', 'roca'];
+  // Lo que asoma en el horizonte. La CIUDAD NEGRA sale grande: es el final del
+  // juego asomando al fondo del mar (y la isla de oro, el premio que se hunde).
+  var SILUETAS = [
+    { id: 'isla',     alto: [0.045, 0.035], alfa: 0.50 },
+    { id: 'roca',     alto: [0.040, 0.030], alfa: 0.55 },
+    { id: 'ciudad',   alto: [0.150, 0.070], alfa: 0.46 },
+    { id: 'isla_oro', alto: [0.070, 0.035], alfa: 0.44 }
+  ];
 
   /* CARGA PEREZOSA. Antes se pedían las catorce bestias de golpe al abrir; con
      treinta y tantas piezas eso es medio mega antes de ver nada. Ahora cada
@@ -224,9 +241,41 @@
   function listo(im) { return im && im.complete && im.naturalWidth ? im : null; }
 
   var apariciones = [];
+
+  /* A LOS LADOS. En el centro de la portada vive el grabado del título, y todo
+     lo ALTO que asome ahí (un coloso, la ciudad negra) se esconde detrás de él:
+     se pierde justo lo que se quería enseñar. Lo grande sale por los costados. */
+  function xLateral() {
+    return Math.random() < 0.5 ? 0.05 + Math.random() * 0.20
+                               : 0.75 + Math.random() * 0.20;
+  }
+
   var hayFiltro = (function () {
     try { return typeof ctx.filter === 'string'; } catch (e) { return false; }
   })();
+
+  /* EL TINTE, UNA VEZ Y NO SESENTA POR SEGUNDO. Cada bestia, cada pez y cada
+     barca se dibujaban con ctx.filter puesto — y un filtro de lienzo se
+     recalcula en CADA drawImage. Con treinta piezas en el agua eso es lo que
+     atascaba la página en equipos modestos. Ahora el sprite teñido se cocina
+     una vez en un lienzo aparte y luego solo se pega. Las combinaciones son
+     pocas (un puñado de sprites por un puñado de tintes), así que la caché no
+     crece: el único filtro que sigue en vivo es el del iris, que TIENE que
+     girar de tono cuadro a cuadro, y es UNA bestia. */
+  var tenidos = {};
+  function tenido(im, filtro) {
+    if (!hayFiltro || !filtro) return im;
+    var clave = im.src + '|' + filtro;
+    if (tenidos[clave]) return tenidos[clave];
+    if (Object.keys(tenidos).length > 90) tenidos = {};
+    var c = document.createElement('canvas');
+    c.width = im.naturalWidth; c.height = im.naturalHeight;
+    var g = c.getContext('2d');
+    g.filter = filtro;
+    g.drawImage(im, 0, 0);
+    tenidos[clave] = c;
+    return c;
+  }
 
   /* ── LAS TIRAS DE AGUA ────────────────────────────────────────────────
      Los mismos PNG que el juego reparte en hileras (assets/sprites/mundo/
@@ -265,12 +314,19 @@
      el relleno y aparece una banda plana — el mismo defecto de antes, más abajo.
      Cada hilera arranca sobre el último tercio de la de arriba, para que su parte
      OPACA tape el filo de la anterior. */
+  /* EL SOLAPE, segunda medida (pedido del usuario: "donde se unen las olas se ve
+     la línea"). La cuenta que importa: el PNG trae su 24% de arriba en degradado
+     (la cresta), así que la parte OPACA de una hilera empieza en y + 0,24·alto y
+     termina en y + alto. Para que no se vea el filo de la de arriba, la opaca de
+     la de abajo tiene que empezar BIEN ANTES de que la anterior acabe. Antes el
+     margen era de tres milésimas de pantalla —dos o tres píxeles— y la junta se
+     leía como una raya. Ahora va de 20 a 60 milésimas. */
   var HILERAS = [
-    { y: 0.504, alto: 0.070, vel: 4,  alfa: 0.55, estira: 0.62 },
-    { y: 0.540, alto: 0.095, vel: 8,  alfa: 0.68, estira: 0.80 },
-    { y: 0.600, alto: 0.130, vel: 14, alfa: 0.80, estira: 1.05 },
-    { y: 0.680, alto: 0.180, vel: 27, alfa: 0.90, estira: 1.45 },
-    { y: 0.790, alto: 0.265, vel: 48, alfa: 0.98, estira: 1.90 }
+    { y: 0.500, alto: 0.100, vel: 4,  alfa: 0.55, estira: 0.62 },
+    { y: 0.548, alto: 0.135, vel: 8,  alfa: 0.68, estira: 0.80 },
+    { y: 0.606, alto: 0.175, vel: 14, alfa: 0.80, estira: 1.05 },
+    { y: 0.678, alto: 0.235, vel: 27, alfa: 0.90, estira: 1.45 },
+    { y: 0.775, alto: 0.320, vel: 48, alfa: 0.98, estira: 1.90 }
   ];
   // Capas donde puede asomar una bestia: las 2 hileras dibujadas del fondo + las 5 de tira.
   var CAPAS = 2 + HILERAS.length;
@@ -320,8 +376,12 @@
 
   function nacerAparicion(iris) {
     // El iris siempre es una bestia grande: tiene que verse que es rara.
+    var hayColoso = false;
+    for (var hc = 0; hc < apariciones.length; hc++) if (apariciones[hc].coloso) hayColoso = true;
+    var tirada = Math.random();
     var grupo = iris ? 'grandes'
-      : (Math.random() < 0.45 ? 'grandes' : (Math.random() < 0.55 ? 'medianas' : 'pequenas'));
+      : (!hayColoso && tirada < 0.13 ? 'colosos'
+        : (tirada < 0.48 ? 'grandes' : (tirada < 0.74 ? 'medianas' : 'pequenas')));
     var lista = ARCHIVOS[grupo];
     // Sin repetidos a la vista: dos megalodones iguales a la vez cantan mucho.
     var enAgua = apariciones.map(function (a) { return a.nombre; });
@@ -331,8 +391,9 @@
 
     // Capa: entre qué hileras asoma (0 = al fondo). Las grandes salen CERCA,
     // nunca junto al horizonte: una bestia pequeña y alta se lee como pegatina.
-    var capa = grupo === 'pequenas' ? 2 + Math.floor(Math.random() * 2)
-      : (grupo === 'medianas' ? 4 + Math.floor(Math.random() * 2) : 6);
+    var capa = grupo === 'colosos' ? Math.floor(Math.random() * 2)      // al fondo del todo
+      : (grupo === 'pequenas' ? 2 + Math.floor(Math.random() * 2)
+      : (grupo === 'medianas' ? 4 + Math.floor(Math.random() * 2) : 6));
     /* TAMAÑOS. Antes cada grupo salía SIEMPRE del mismo alto y el mar parecía de
        juguete: todas las bestias medían igual. Ahora cada grupo tiene su
        horquilla —y una de cada siete grandes sale COLOSAL, del tamaño de los
@@ -340,7 +401,8 @@
        Sigue contenido a propósito: el mar es el fondo de una web, no el
        escenario de una pelea. */
     var alto;
-    if (grupo === 'pequenas') alto = 0.026 + Math.random() * 0.034;
+    if (grupo === 'colosos') alto = 0.240 + Math.random() * 0.130;   // un tercio de pantalla
+    else if (grupo === 'pequenas') alto = 0.026 + Math.random() * 0.034;
     else if (grupo === 'medianas') alto = 0.055 + Math.random() * 0.050;
     else alto = (Math.random() < 0.14 ? 0.200 + Math.random() * 0.080
                                       : 0.105 + Math.random() * 0.070);
@@ -359,11 +421,14 @@
       if (lejos > mejor) { mejor = lejos; x = cand; }
     }
 
-    var sube = 3.2 + Math.random() * 1.8;
+    // El coloso sube despacio y se queda: lo que es grande tarda en salir.
+    if (grupo === 'colosos') x = xLateral();
+    var sube = grupo === 'colosos' ? 6.5 + Math.random() * 3.0 : 3.2 + Math.random() * 1.8;
     return {
       nombre: nombre,
       img: cargar(nombre),
       iris: !!iris,
+      coloso: grupo === 'colosos',
       capa: capa,
       x: x,                                  // fracción del ancho (ya separada)
       alto: alto,                            // fracción de la altura
@@ -371,8 +436,8 @@
       // con ?ya=1 nace con la subida hecha: sale del agua en el primer cuadro
       nace: YA ? reloj - sube : reloj,
       sube: sube,
-      queda: (iris ? 11 : 5) + Math.random() * 5,
-      baja: 3.2 + Math.random() * 1.8,
+      queda: (grupo === 'colosos' ? 14 : (iris ? 11 : 5)) + Math.random() * 6,
+      baja: grupo === 'colosos' ? 6.0 + Math.random() * 2.5 : 3.2 + Math.random() * 1.8,
       desfase: Math.random()
     };
   }
@@ -436,11 +501,10 @@
     var ang = Math.atan2(-vy, Math.abs(sa.dir * sa.corre * W));
     ctx.save();
     ctx.globalAlpha = 0.95;
-    if (hayFiltro) ctx.filter = 'brightness(1.12)';
     ctx.translate(x, y);
     ctx.rotate(sa.dir > 0 ? -ang : ang);
     ctx.scale(sa.dir > 0 ? -1 : 1, 1);
-    ctx.drawImage(im, -ancho / 2, -alto / 2, ancho, alto);
+    ctx.drawImage(tenido(im, 'brightness(1.12)'), -ancho / 2, -alto / 2, ancho, alto);
     ctx.restore();
   }
 
@@ -468,12 +532,11 @@
     var y = aguaY - alto * 0.86 + Math.sin(reloj * 0.7 + b.desfase) * alto * 0.03;
     ctx.save();
     ctx.globalAlpha = 0.62;
-    if (hayFiltro) ctx.filter = 'brightness(0.42) contrast(1.1)';
     ctx.beginPath(); ctx.rect(0, 0, W, aguaY); ctx.clip();
     ctx.translate(b.x * W, y);
     ctx.rotate(Math.sin(reloj * 0.6 + b.desfase) * 0.018);
     if (b.dir < 0) ctx.scale(-1, 1);
-    ctx.drawImage(im, -ancho / 2, 0, ancho, alto);
+    ctx.drawImage(tenido(im, 'brightness(0.42) contrast(1.1)'), -ancho / 2, 0, ancho, alto);   // a contraluz
     ctx.restore();
   }
 
@@ -513,12 +576,18 @@
      nunca se acercan. */
   var lejanias = [];
   function nacerLejania() {
+    var q = SILUETAS[Math.floor(Math.random() * SILUETAS.length)];
+    if (FLAGS.silueta) {
+      for (var k = 0; k < SILUETAS.length; k++) if (SILUETAS[k].id === FLAGS.silueta) q = SILUETAS[k];
+    }
     return {
-      img: cargarDe('mar', SILUETAS[Math.floor(Math.random() * SILUETAS.length)]),
+      img: cargarDe('mar', q.id),
       nace: reloj,
       dura: 26 + Math.random() * 22,
-      x: 0.1 + Math.random() * 0.8,
-      alto: 0.045 + Math.random() * 0.035,
+      // Lo alto (la ciudad) a un lado; lo bajo puede caer donde quiera.
+      x: q.alto[0] > 0.09 ? xLateral() : 0.1 + Math.random() * 0.8,
+      alto: q.alto[0] + Math.random() * q.alto[1],
+      alfa: q.alfa,
       vel: (Math.random() < 0.5 ? -1 : 1) * 0.0015
     };
   }
@@ -530,9 +599,9 @@
     var alto = Math.min(H * l.alto, im.naturalHeight);
     var ancho = alto * (im.naturalWidth / im.naturalHeight);
     ctx.save();
-    ctx.globalAlpha = f * 0.5;
-    if (hayFiltro) ctx.filter = 'brightness(0.72) contrast(0.8)';
-    ctx.drawImage(im, (l.x + l.vel * (reloj - l.nace)) * W - ancho / 2, aguaY - alto * 0.94, ancho, alto);
+    ctx.globalAlpha = f * l.alfa;
+    ctx.drawImage(tenido(im, 'brightness(0.72) contrast(0.8)'),
+      (l.x + l.vel * (reloj - l.nace)) * W - ancho / 2, aguaY - alto * 0.94, ancho, alto);
     ctx.restore();
   }
 
@@ -586,6 +655,21 @@
        una barca, un par de restos y unas nubes YA puestos. */
     if (!sembrado) {
       sembrado = true;
+      /* Flags de captura: ?coloso=1 planta un coloso ya emergido y
+         ?silueta=<id> fija lo que asoma en el horizonte (isla, roca, ciudad,
+         isla_oro). Salen por lotería, y una foto no puede esperar la lotería. */
+      if (FLAGS.coloso === '1') {
+        var col = nacerAparicion(false);
+        col.coloso = true;
+        col.nombre = ARCHIVOS.colosos[Math.floor(Math.random() * ARCHIVOS.colosos.length)];
+        col.img = cargar(col.nombre);
+        col.capa = Math.floor(Math.random() * 2);
+        col.alto = 0.240 + Math.random() * 0.130;
+        col.x = xLateral();
+        col.sube = 7.0; col.queda = 40; col.baja = 6;
+        col.nace = reloj - col.sube;      // ya emergido del todo
+        apariciones.push(col);
+      }
       barcas.push(nacerBarca(true));
       deriva.push(nacerDeriva(true));
       if (!poco) deriva.push(nacerDeriva(true));
@@ -629,26 +713,29 @@
     ctx.save();
     // Las de más lejos se entregan menos: la distancia también es niebla.
     var lejania = 1 - a.capa / (CAPAS - 1);
-    ctx.globalAlpha = Math.min(1, f * 1.6) * (0.92 - lejania * 0.22);
+    ctx.globalAlpha = Math.min(1, f * 1.6) * (0.92 - lejania * 0.22) * (a.coloso ? 0.82 : 1);
     // Recorte: lo que queda bajo la línea del agua no se ve.
     ctx.beginPath();
     ctx.rect(0, 0, W, agua);
     ctx.clip();
 
-    if (hayFiltro) {
-      if (a.iris) {
-        ctx.filter = 'hue-rotate(' + Math.round((reloj * 32 + a.desfase * 360) % 360) +
-                     'deg) saturate(1.8) brightness(1.2)';
-      } else {
-        // Varias bestias son casi negras; sobre agua oscura desaparecían.
-        ctx.filter = 'brightness(' + (1.28 - lejania * 0.1).toFixed(2) + ') contrast(0.92)';
-      }
+    var dibujo = im;
+    if (a.iris && hayFiltro) {
+      // El único filtro EN VIVO: el iris tiene que girar de tono cada cuadro.
+      ctx.filter = 'hue-rotate(' + Math.round((reloj * 32 + a.desfase * 360) % 360) +
+                   'deg) saturate(1.8) brightness(1.2)';
+    } else if (a.coloso) {
+      // A contraluz: lo enorme y lejano se lee como sombra, no como bicho.
+      dibujo = tenido(im, 'brightness(0.42) contrast(1.15) saturate(0.7)');
+    } else {
+      // Varias bestias son casi negras; sobre agua oscura desaparecían.
+      dibujo = tenido(im, 'brightness(' + (1.28 - lejania * 0.1).toFixed(2) + ') contrast(0.92)');
     }
     ctx.translate(x, y);
     if (a.giro < 0) ctx.scale(-1, 1);
     // Un vaivén muy leve: el agua nunca está quieta.
     ctx.rotate(Math.sin(reloj * 0.6 + a.desfase * 6.28) * 0.016);
-    ctx.drawImage(im, -ancho / 2, 0, ancho, alto);
+    ctx.drawImage(dibujo, -ancho / 2, 0, ancho, alto);
     ctx.restore();
   }
 
@@ -737,10 +824,16 @@
   }
   var fase = faseHoy();
 
-  /* La luna se pinta en un lienzo APARTE y se pega ya recortada. Dos razones:
-     la mordida de la fase se hace con 'destination-out', que en el lienzo
-     grande abriría un agujero al negro del fondo (el bug del 13 sep), y así la
-     luna entera puede entrar y salir con alfa durante el viraje de marea. */
+  /* LA LUNA ES LA DEL JUEGO. Estaba dibujada a mano (un disco crema con una
+     mordida elíptica) hasta que aparecieron las ocho fases pintadas que usa el
+     instrumental del celular: `assets/lunas/fase_0..7` más la de sangre. Se
+     usan esas; el disco dibujado se queda de RESPALDO exacto para el rato en
+     que el PNG aún viaja por la red (mismo patrón que las tiras de agua).
+
+     El respaldo se pinta en un lienzo APARTE y se pega ya recortado. Dos
+     razones: la mordida de la fase se hace con 'destination-out', que en el
+     lienzo grande abriría un agujero al negro del fondo (el bug del 13 sep), y
+     así la luna entera puede entrar y salir con alfa durante el viraje. */
   var lunas = {};
   function lienzoLuna(r, k, color) {
     r = Math.round(r);
@@ -772,6 +865,29 @@
     }
     lunas[clave] = c;
     return c;
+  }
+
+  /* Pinta la luna en (cx,cy) con radio r: el PNG de su fase si ya llegó, y si
+     no el disco dibujado. Con la marea de sangre se cruza a la luna roja. */
+  function lunaEn(cx, cy, r, k, rojo, colTxt) {
+    var normal = listo(cargarDe('lunas', 'fase_' + k));
+    var roja = rojo > 0.01 ? listo(cargarDe('lunas', 'sangre')) : null;
+    if (!normal && !roja) {
+      var disco = lienzoLuna(r, k, colTxt);
+      ctx.drawImage(disco, cx - disco.width / 2, cy - disco.height / 2);
+      return;
+    }
+    var d = r * 2.12;   // el grabado trae su propio margen alrededor del disco
+    var alfa = ctx.globalAlpha;
+    if (normal) {
+      ctx.globalAlpha = alfa * (1 - (roja ? rojo : 0));
+      ctx.drawImage(normal, cx - d / 2, cy - d / 2, d, d);
+    }
+    if (roja) {
+      ctx.globalAlpha = alfa * rojo;
+      ctx.drawImage(roja, cx - d / 2, cy - d / 2, d, d);
+    }
+    ctx.globalAlpha = alfa;
   }
 
   // Cuánto pesa cada cielo ahora mismo (0..1), mezclando durante el viraje.
@@ -825,9 +941,8 @@
     ctx.fillStyle = halo;
     ctx.beginPath(); ctx.arc(lx, ly, haloR, 0, 6.283); ctx.fill();
 
-    var disco = lienzoLuna(lr, fase, colTxt);
     ctx.globalAlpha = visible * (1 - velo * 0.45);   // velada: se adivina, no se ve
-    ctx.drawImage(disco, lx - disco.width / 2, ly - disco.height / 2);
+    lunaEn(lx, ly, lr, fase, sangriento, colTxt);
 
     /* LA SEGUNDA LUNA: sale más chica, con otra fase (sus cráteres no
        coinciden, dice el juego) y LATE. No se anuncia sola: el rótulo la
@@ -835,12 +950,11 @@
     if (dobles > 0.02) {
       var late = 1 + Math.sin(reloj * 1.9) * 0.055;
       var r2 = lr * 0.62 * late;
-      // Otra fase que la primera: en el juego "sus cráteres no coinciden".
-      var disco2 = lienzoLuna(r2, (fase + 3) % 8, colTxt);
       ctx.globalAlpha = visible * dobles * 0.9;
-      // Abajo y a la derecha de la primera: en 0,665 x 0,235 caía DETRÁS del
-      // grabado del título y no se veía (cazado mirando la captura).
-      ctx.drawImage(disco2, W * 0.930 - disco2.width / 2, H * 0.290 - disco2.height / 2);
+      // Otra fase que la primera: en el juego "sus cráteres no coinciden".
+      // Abajo y a la derecha: en 0,665 x 0,235 caía DETRÁS del grabado del
+      // título y no se veía (cazado mirando la captura).
+      lunaEn(W * 0.930, H * 0.290, r2, (fase + 3) % 8, sangriento, colTxt);
     }
     ctx.restore();
   }
@@ -1032,6 +1146,7 @@
   // primer cuadro dejaba el mar con las olas de respaldo hasta que llegaban.
   cargarTira(MAREAS[indice].tira);
   cargarTira(MAREAS[siguiente].tira);
+  cargarDe('lunas', 'fase_' + fase);   // la de esta noche, ya
 
   medir();
   // Con "reduzca el movimiento" pintamos UN cuadro y lo dejamos quieto.

@@ -100,6 +100,7 @@ main, .barra, .pie { position: relative; z-index: 2; }
 .barra {
   position: sticky;
   top: 0;
+  z-index: 4;              /* por encima de las pantallas: es el timón */
   display: flex;
   align-items: center;
   gap: 24px;
@@ -1026,6 +1027,9 @@ html[data-pantallas] .pantalla:not(.activa) { display: none; }
 html[data-pantallas] .pantalla.activa {
   animation: pantalla-entra .5s cubic-bezier(.2, .7, .3, 1) both;
 }
+/* Las fotos (?ya=1) no esperan medio segundo: sin animación, o la captura sale
+   a medio aparecer — pasó en la primera toma del móvil. */
+body.sin-animar .pantalla.activa { animation: none; }
 @keyframes pantalla-entra {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: none; }
@@ -1076,9 +1080,9 @@ html[data-pantallas] .pantalla.activa {
 
 .rumbos {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 9px;
-  width: min(1080px, 95vw);
+  width: min(1000px, 95vw);
   margin: clamp(28px, 5vh, 54px) auto 0;
 }
 .rumbo {
@@ -1274,6 +1278,164 @@ body[data-pantalla="portada"] .heroe__plataformas {
 }
 
 
+/* ═══════════════ EL MUELLE: LOS VECINOS ═══════════════ */
+
+.vecinos {
+  display: grid;
+  /* Seis vecinos: tres y tres. Con auto-fit salían cinco arriba y Cosme solo
+     abajo, que parecía un error de maquetación. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 38px;
+}
+@media (max-width: 900px) { .vecinos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 540px) { .vecinos { grid-template-columns: 1fr; } }
+.vecinos figure {
+  margin: 0;
+  padding: 16px 14px 18px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid rgba(201, 162, 39, .12);
+  border-radius: var(--radio);
+  transition: border-color .3s ease, transform .3s cubic-bezier(.2, .7, .3, 1);
+}
+.vecinos figure:hover { border-color: var(--oro-tenue); transform: translateY(-3px); }
+.vecinos img {
+  height: 150px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .8));
+  margin-bottom: 10px;
+}
+.vecinos figcaption { font-size: .88rem; color: var(--apagado); line-height: 1.45; }
+.vecinos figcaption b {
+  display: block;
+  font-family: var(--titulo);
+  font-size: 1rem;
+  color: var(--oro-palido);
+  margin-bottom: 5px;
+}
+
+/* ═══════════════ LOS MARINEROS ═══════════════ */
+
+.marineros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+.marineros figure {
+  margin: 0;
+  padding: 20px 16px 22px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(7, 17, 32, .82), rgba(4, 9, 16, .9));
+  border: 1px solid rgba(201, 162, 39, .16);
+  border-radius: var(--radio);
+}
+.marineros img {
+  height: 260px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, .85));
+  margin-bottom: 12px;
+}
+.marineros figcaption { font-size: .9rem; line-height: 1.5; }
+.marineros figcaption > b {
+  display: block;
+  font-family: var(--titulo);
+  font-size: 1.08rem;
+  letter-spacing: .03em;
+  color: var(--oro-palido);
+  margin-bottom: 8px;
+}
+.marinero__lo { display: block; color: var(--tenue); }
+.marinero__precio {
+  display: block;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(201, 162, 39, .12);
+  font-size: .85rem;
+  font-style: italic;
+  color: var(--apagado);
+}
+
+/* ═══════════════ EL CELULAR COMO INSTRUMENTO ═══════════════ */
+
+.celular {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+  margin-bottom: 34px;
+  padding: 24px;
+  background: var(--panel);
+  border: 1px solid rgba(201, 162, 39, .14);
+  border-radius: var(--radio);
+}
+.celular__arte { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.celular__arte img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, .8));
+}
+.celular__texto p { margin: 0 0 14px; color: var(--tenue); font-size: .98rem; }
+.celular__lista { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 10px; }
+.celular__lista li { font-size: .92rem; color: var(--apagado); line-height: 1.45; }
+.celular__lista b {
+  font-family: var(--titulo);
+  font-size: .95rem;
+  color: var(--oro-palido);
+  margin-right: 8px;
+}
+.celular__nota {
+  border-left: 2px solid var(--oro-tenue);
+  padding-left: 16px;
+  font-style: italic;
+  font-size: .92rem;
+}
+
+/* ═══════════════ EL MENÚ DE LA BARRA ═══════════════ */
+
+.chip--menu { display: none; }        /* en pantalla ancha manda la barra entera */
+.icono-menu, .icono-menu::before, .icono-menu::after {
+  display: block;
+  width: 15px; height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+.icono-menu { position: relative; }
+.icono-menu::before, .icono-menu::after { content: ""; position: absolute; left: 0; }
+.icono-menu::before { top: -5px; }
+.icono-menu::after  { top: 5px; }
+
+/* Con ocho pantallas, la barra no cabe antes de lo que parece: el menú entra
+   pronto y no solo en el móvil. */
+@media (max-width: 1080px) {
+  .barra { position: sticky; }
+  .barra__nav {
+    display: none;
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    flex-direction: column;
+    gap: 0;
+    padding: 6px max(16px, 4vw) 14px;
+    background: var(--panel-alto);
+    border-bottom: 1px solid var(--oro-tenue);
+    backdrop-filter: blur(6px);
+  }
+  .barra.abierta .barra__nav { display: flex; }
+  .barra__nav a {
+    padding: 11px 2px;
+    border-bottom: 1px solid rgba(201, 162, 39, .10);
+    font-size: .95rem;
+  }
+  .barra__nav a:last-child { border-bottom: 0; }
+  .chip--menu { display: grid; place-items: center; padding: 7px 10px; }
+}
+
+
 /* ═══════════════ APARICIONES AL DESPLAZAR ═══════════════ */
 
 .aparece {
@@ -1289,7 +1451,6 @@ body[data-pantalla="portada"] .heroe__plataformas {
 @media (max-width: 820px) {
   body { font-size: 18px; }
   .barra { gap: 12px; padding: 10px 16px; }
-  .barra__nav { display: none; }
   .barra__nombre { display: none; }
 
   .prismatica { grid-template-columns: 1fr; gap: 26px; padding: 26px 20px; text-align: center; }

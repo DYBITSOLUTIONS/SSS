@@ -61,15 +61,24 @@
     <span class="barra__sss">SSS</span>
     <span class="barra__nombre">Sweet Sweet Sea</span>
   </a>
-  <nav class="barra__nav">
+  <nav class="barra__nav" id="barra-nav">
     <a href="#juego"><span class="es">El juego</span><span class="en">The game</span></a>
     <a href="#juegas"><span class="es">Cómo se juega</span><span class="en">How it plays</span></a>
+    <a href="#muelle"><span class="es">El muelle</span><span class="en">The pier</span></a>
+    <a href="#marineros"><span class="es">Marineros</span><span class="en">Sailors</span></a>
     <a href="#bestiario"><span class="es">Bestiario</span><span class="en">Bestiary</span></a>
     <a href="#noche"><span class="es">La noche</span><span class="en">Night</span></a>
     <a href="#mareas"><span class="es">Mareas</span><span class="en">Tides</span></a>
     <a href="#jugar"><span class="es">Jugar</span><span class="en">Play</span></a>
   </nav>
   <div class="barra__controles">
+    <!-- El menú de la barra angosta. Con ocho pantallas y sin barra de
+         navegación en el móvil, quien entraba en una sección solo podía volver
+         a la portada: aquí están las ocho, siempre. -->
+    <button id="btn-menu" class="chip chip--menu" type="button" aria-expanded="false" aria-controls="barra-nav">
+      <span class="icono-menu" aria-hidden="true"></span>
+      <span class="sr">Menú</span>
+    </button>
     <button id="btn-audio" class="chip chip--icono" type="button" aria-pressed="false" title="Música">
       <span class="icono-audio" aria-hidden="true"></span>
       <span class="sr">Música</span>
@@ -117,6 +126,14 @@
       <a class="rumbo" href="#juegas">
         <span class="rumbo__nombre"><span class="es">Cómo se juega</span><span class="en">How it plays</span></span>
         <span class="rumbo__pie"><span class="es">la caña, el arpón, el lazo</span><span class="en">rod, harpoon, lasso</span></span>
+      </a>
+      <a class="rumbo" href="#muelle">
+        <span class="rumbo__nombre"><span class="es">El muelle</span><span class="en">The pier</span></span>
+        <span class="rumbo__pie"><span class="es">vecinos, oro y fogón</span><span class="en">neighbours, gold, stove</span></span>
+      </a>
+      <a class="rumbo" href="#marineros">
+        <span class="rumbo__nombre"><span class="es">Marineros</span><span class="en">Sailors</span></span>
+        <span class="rumbo__pie"><span class="es">a quién juegas</span><span class="en">who you play</span></span>
       </a>
       <a class="rumbo" href="#bestiario">
         <span class="rumbo__nombre"><span class="es">Bestiario</span><span class="en">Bestiary</span></span>
@@ -336,7 +353,39 @@
           <b><span class="es">Llave oxidada ★</span><span class="en">Rusted key ★</span></b>
           <span class="es">tres abren la <b>Puerta Hundida</b></span><span class="en">three open the <b>Sunken Gate</b></span>
         </li>
+        <li>
+          <img src="assets/peces/atun.webp" alt="" loading="lazy" width="340" height="153">
+          <b><span class="es">Atún real</span><span class="en">Royal tuna</span></b>
+          <span class="es">22 oro · la comida grande del profundo</span><span class="en">22 gold · the deep's big meal</span>
+        </li>
+        <li class="es-raro">
+          <img src="assets/peces/tiburon.webp" alt="" loading="lazy" width="340" height="138">
+          <b><span class="es">Tiburón sombrío ★</span><span class="en">Gloom shark ★</span></b>
+          <span class="es">46 oro · pide caña de maestro</span><span class="en">46 gold · needs a master's rod</span>
+        </li>
+        <li class="es-raro">
+          <img src="assets/peces/medusa.webp" alt="" loading="lazy" width="340" height="288">
+          <b><span class="es">Medusa farol ★</span><span class="en">Lantern jelly ★</span></b>
+          <span class="es">30 oro · la luz <b>buena</b> de la tinta nocturna</span><span class="en">30 gold · the <b>kind</b> light of the night ink</span>
+        </li>
+        <li class="es-raro">
+          <img src="assets/peces/caballito.webp" alt="" loading="lazy" width="340" height="318">
+          <b><span class="es">Caballito de la tinta ★</span><span class="en">Ink seahorse ★</span></b>
+          <span class="es">55 oro · no se come: es joya de colección</span><span class="en">55 gold · not food: a collector's jewel</span>
+        </li>
+        <li>
+          <img src="assets/peces/globo.webp" alt="" loading="lazy" width="340" height="340">
+          <b><span class="es">Pez globo</span><span class="en">Pufferfish</span></b>
+          <span class="es">no pica: <b>huye de ti</b> en el mar. Su carne alimenta… con un veneno suave</span>
+          <span class="en">it doesn't bite: it <b>flees</b> at sea. Its meat feeds you… with a mild venom</span>
+        </li>
       </ul>
+      <p class="parrafo parrafo--centro parrafo--corto">
+        <span class="es">Y una décimocuarta pieza que no lleva retrato porque no queremos dibujarla:
+          de noche, a veces, el sedal sube <b>restos humanos</b>.</span>
+        <span class="en">And a fourteenth catch with no portrait, because we'd rather not draw it:
+          at night, sometimes, the line brings up <b>human remains</b>.</span>
+      </p>
 
       <!-- EL COMBATE -->
       <h3 class="subtitulo"><span class="es">Y lo que no quiere que lo pesques</span><span class="en">And what doesn't want to be caught</span></h3>
@@ -396,6 +445,226 @@
         <span class="en">What you tame <b>defends the pier</b> at night, escorts you out to sea and leaves you gifts at dawn.
           And what hatches in the nest inherits stars, size, temper and mutations — <a href="#bestiario">that's where
           breeding begins</a>.</span>
+      </p>
+
+      <nav class="pantalla__sigue">
+        <a href="#muelle">
+          <span class="es">Siguiente: El muelle</span><span class="en">Next: The pier</span>
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ═══════════ EL MUELLE ═══════════ -->
+  <section id="muelle" class="seccion pantalla">
+    <div class="envoltura">
+      <p class="pantalla__ruta">
+        <a class="pantalla__volver" href="#portada">
+          <span class="es">Volver al mar</span><span class="en">Back to the sea</span>
+        </a>
+      </p>
+      <h2 class="titulo">
+        <span class="es">El muelle</span>
+        <span class="en">The pier</span>
+      </h2>
+      <p class="parrafo parrafo--grande">
+        <span class="es">Tu refugio: aquí la niebla es ancha y quieta, la mente se recompone
+          y las tormentas no entran.</span>
+        <span class="en">Your refuge: here the fog is wide and still, the mind knits itself back
+          together and storms don't come in.</span>
+      </p>
+
+      <h3 class="subtitulo"><span class="es">Los vecinos</span><span class="en">The neighbours</span></h3>
+      <p class="parrafo parrafo--centro parrafo--corto">
+        <span class="es">Pasean por su zona y cada uno te hace <b>un favor al día</b> si le hablas.
+          Al tercero, te regalan lo suyo. Saludar a todos antes de zarpar es la mejor rutina del juego.</span>
+        <span class="en">They walk their patch, and each does you <b>one favour a day</b> if you talk to them.
+          At the third, they give you what's theirs. Greeting them all before sailing is the game's best habit.</span>
+      </p>
+      <div class="vecinos">
+        <figure>
+          <img src="assets/gente/viejo.webp" alt="" loading="lazy" width="376" height="440">
+          <figcaption><b><span class="es">El viejo pescador</span><span class="en">The old fisherman</span></b>
+            <span class="es">Te señala el cardumen: ese día pican muchas más rarezas. Regala su sombrero.</span>
+            <span class="en">He points at the shoal: far more rare things bite that day. He gives you his hat.</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/gente/mercader.webp" alt="" loading="lazy" width="306" height="440">
+          <figcaption><b><span class="es">El mercader</span><span class="en">The merchant</span></b>
+            <span class="es">Te vende barato el material que más te falta. Sabe lo que te falta.</span>
+            <span class="en">He sells you cheap the material you lack most. He knows what you lack.</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/gente/capitan.webp" alt="" loading="lazy" width="212" height="269">
+          <figcaption><b><span class="es">El viejo capitán</span><span class="en">The old captain</span></b>
+            <span class="es">Calafatea tu casco y te da su pronóstico. Regala su Tricornio.</span>
+            <span class="en">He caulks your hull and gives you his forecast. He gives you his tricorn.</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/gente/remedios.webp" alt="" loading="lazy" width="339" height="440">
+          <figcaption><b><span class="es">Doña Remedios</span><span class="en">Doña Remedios</span></b>
+            <span class="es">Compra peces extraños para sus remedios… y su esfera de cristal <b>se cumple</b>.</span>
+            <span class="en">She buys strange fish for her remedies… and her crystal ball <b>comes true</b>.</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/gente/marta.webp" alt="" loading="lazy" width="349" height="440">
+          <figcaption><b><span class="es">Marta la Salada</span><span class="en">Salty Marta</span></b>
+            <span class="es">Paga bien el pescado de diario y desconfía de las rarezas. Cede al regateo casi la mitad de las veces.</span>
+            <span class="en">She pays well for everyday fish and distrusts oddities. She yields to haggling nearly half the time.</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/gente/cosme.webp" alt="" loading="lazy" width="360" height="440">
+          <figcaption><b><span class="es">El viejo Cosme</span><span class="en">Old Cosme</span></b>
+            <span class="es">Paga la mitad de más por lo que el mar <b>no debería</b> haber soltado.</span>
+            <span class="en">He pays half again for whatever the sea <b>shouldn't</b> have given up.</span></figcaption>
+        </figure>
+      </div>
+
+      <h3 class="subtitulo"><span class="es">A dónde va el oro</span><span class="en">Where the gold goes</span></h3>
+      <div class="rejilla-sistemas">
+        <article class="carta">
+          <h3><span class="es">La pescadería</span><span class="en">The fishmonger's</span></h3>
+          <p><span class="es">Vender en persona. Te atiende uno de los tres compradores, cada uno con
+            sus manías, y puedes <b>regatear una vez</b>: si acepta subes un veinte por ciento;
+            si lo ofendes, te quita un siete.</span>
+            <span class="en">Selling in person. One of the three buyers serves you, each with their own
+            quirks, and you may <b>haggle once</b>: if they accept you gain a fifth; if you offend them,
+            they take seven percent off.</span></p>
+        </article>
+        <article class="carta">
+          <h3><span class="es">Tu escaparate</span><span class="en">Your stall</span></h3>
+          <p><span class="es">El mostrador junto a tu casa: exhibe piezas y <b>los vecinos compran solos
+            durante el día</b>, incluso mientras navegas. De noche no pasa nadie. Se amplía a diez huecos
+            y mejor margen.</span>
+            <span class="en">The counter by your house: display your pieces and <b>the neighbours buy on
+            their own during the day</b>, even while you're at sea. At night nobody passes. It grows to ten
+            slots and a better cut.</span></p>
+        </article>
+        <article class="carta">
+          <h3><span class="es">La Cambista</span><span class="en">The Exchanger</span></h3>
+          <p><span class="es">Cambia unos materiales por otros, y <b>cada día ofrece otros tratos</b>.
+            Es el sitio para deshacerte de lo que te sobra… y para conseguir un colmillo abisal
+            sin tener que cazar al que lo llevaba puesto.</span>
+            <span class="en">She trades one material for another, and <b>every day the deals change</b>.
+            It's where you dump what you have too much of… and where you get an abyssal fang without
+            hunting whatever was wearing it.</span></p>
+        </article>
+        <article class="carta">
+          <h3><span class="es">El banco y el astillero</span><span class="en">Bench and shipyard</span></h3>
+          <p><span class="es">El banco forja armas y sube la caña; el astillero repara el casco, mejora
+            la vela y vende lámparas. <b>La luz no es un lujo</b>: de noche, sin ella, lo que se acerca
+            no tiene nombre.</span>
+            <span class="en">The bench forges weapons and upgrades the rod; the shipyard repairs the hull,
+            improves the sail and sells lamps. <b>Light is not a luxury</b>: at night, without it, what
+            approaches has no name.</span></p>
+        </article>
+        <article class="carta">
+          <h3><span class="es">El almacén</span><span class="en">The storehouse</span></h3>
+          <p><span class="es">Lo que guardas ahí <b>sobrevive a tu muerte en el mar</b>. La decisión
+            eterna: ¿vender ya, exhibir con paciencia, llevártelo… o ponerlo a salvo?</span>
+            <span class="en">What you leave there <b>survives your death at sea</b>. The eternal question:
+            sell now, display and wait, take it with you… or put it somewhere safe?</span></p>
+        </article>
+        <article class="carta">
+          <h3><span class="es">El fogón</span><span class="en">The stove</span></h3>
+          <p><span class="es">Asar pescado, la sopa de algas… y <b>seis raciones portátiles</b> que te
+            llevas en la bodega y comes en el mar. Cocinas en casa y cargas cordura para cuando la noche
+            empiece a sangrarte.</span>
+            <span class="en">Grilled fish, seaweed soup… and <b>six portable rations</b> you carry in the
+            hold and eat at sea. You cook at home and load up on sanity for when the night starts to bleed you.</span></p>
+        </article>
+      </div>
+
+      <nav class="pantalla__sigue">
+        <a href="#marineros">
+          <span class="es">Siguiente: Los marineros</span><span class="en">Next: The sailors</span>
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ═══════════ LOS MARINEROS ═══════════ -->
+  <section id="marineros" class="seccion pantalla seccion--honda">
+    <div class="envoltura">
+      <p class="pantalla__ruta">
+        <a class="pantalla__volver" href="#portada">
+          <span class="es">Volver al mar</span><span class="en">Back to the sea</span>
+        </a>
+      </p>
+      <h2 class="titulo">
+        <span class="es">A quién juegas</span>
+        <span class="en">Who you play</span>
+      </h2>
+      <p class="parrafo parrafo--grande">
+        <span class="es">No es solo un retrato: cada marinero cambia cómo se vive el mar.</span>
+        <span class="en">It isn't just a portrait: each sailor changes how the sea is lived.</span>
+      </p>
+      <p class="parrafo parrafo--centro parrafo--corto">
+        <span class="es">La historia base es la del Pescador. Los otros tres se <b>desbloquean dando
+          vueltas a la Puerta Hundida</b>: una vuelta, un marinero.</span>
+        <span class="en">The base story is the Fisherman's. The other three are <b>unlocked by looping
+          through the Sunken Gate</b>: one loop, one sailor.</span>
+      </p>
+
+      <div class="marineros">
+        <figure>
+          <img src="assets/gente/pescador.webp" alt="" loading="lazy" width="448" height="560">
+          <figcaption>
+            <b><span class="es">El Pescador</span><span class="en">The Fisherman</span></b>
+            <span class="marinero__lo"><span class="es">Come dos raciones en casa (los demás, una) y lleva
+              la <b>suerte del pescador</b>: mejor pesca rara, más materiales sueltos, más islas de verdad.</span>
+              <span class="en">He eats two rations at home (the others, one) and carries the
+              <b>fisherman's luck</b>: better rare catches, more loose materials, more real islands.</span></span>
+            <span class="marinero__precio"><span class="es">Sin contras: es el equilibrado.</span>
+              <span class="en">No downside: he's the balanced one.</span></span>
+          </figcaption>
+        </figure>
+        <figure>
+          <img src="assets/gente/carym.webp" alt="" loading="lazy" width="373" height="560">
+          <figcaption>
+            <b><span class="es">Carym, la cocinera</span><span class="en">Carym, the cook</span></b>
+            <span class="marinero__lo"><span class="es">Cada plato del fogón le rinde <b>una ración extra</b>,
+              y solo ella cocina su receta de familia: las galletas de la abuela Karen.</span>
+              <span class="en">Every dish from the stove yields her <b>an extra ration</b>, and only she
+              cooks her family recipe: grandma Karen's biscuits.</span></span>
+            <span class="marinero__precio"><span class="es">Ni combate ni mar: lo suyo es la despensa.</span>
+              <span class="en">Neither combat nor sea: hers is the pantry.</span></span>
+          </figcaption>
+        </figure>
+        <figure>
+          <img src="assets/gente/pirata.webp" alt="" loading="lazy" width="373" height="560">
+          <figcaption>
+            <b><span class="es">El Pirata</span><span class="en">The Pirate</span></b>
+            <span class="marinero__lo"><span class="es">Empieza <b>armado</b>: sable en mano y tricornio
+              puesto, vendiendo un treinta por ciento más desde el primer día.</span>
+              <span class="en">He starts <b>armed</b>: cutlass in hand and tricorn on, selling thirty
+              percent higher from day one.</span></span>
+            <span class="marinero__precio"><span class="es">Aguanta un tercio menos… y de noche
+              <b>los calamares lo buscan</b>.</span>
+              <span class="en">He takes a third less punishment… and at night <b>the squids come looking
+              for him</b>.</span></span>
+          </figcaption>
+        </figure>
+        <figure>
+          <img src="assets/gente/sirena.webp" alt="" loading="lazy" width="373" height="560">
+          <figcaption>
+            <b><span class="es">La Sirena</span><span class="en">The Mermaid</span></b>
+            <span class="marinero__lo"><span class="es">Los náufragos del muelle <b>no la tocan</b>, la noche
+              la hostiga menos y el mar le drena mucha menos cordura. Lo raro acude a su sedal.</span>
+              <span class="en">The pier's castaways <b>don't touch her</b>, the night harries her less and
+              the sea drains far less of her mind. Rare things come to her line.</span></span>
+            <span class="marinero__precio"><span class="es">Fabricar le cuesta más: los mercaderes
+              la miran con recelo.</span>
+              <span class="en">Crafting costs her more: the merchants eye her sideways.</span></span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <p class="parrafo parrafo--centro parrafo--corto aviso">
+        <span class="es">Y hay una quinta. No se elige, no se compra y no aparece en la lista:
+          se le encuentra <b>disparándole a la luna</b>. Quien la conozca, que no lo cuente.</span>
+        <span class="en">And there is a fifth. She can't be chosen, bought, or found in the list:
+          you meet her by <b>shooting at the moon</b>. Whoever knows her, let them keep quiet.</span>
       </p>
 
       <nav class="pantalla__sigue">
@@ -772,6 +1041,48 @@
         <span class="en">No ads. No in-app purchases. No accounts. No data collection —
           <a href="privacidad.html">and here's the policy that says so</a>.</span>
       </p>
+
+      <!-- EL CELULAR COMO INSTRUMENTO -->
+      <h3 class="subtitulo"><span class="es">Y el teléfono, en la mesa</span><span class="en">And the phone, on the table</span></h3>
+      <div class="celular">
+        <div class="celular__arte">
+          <img src="assets/celular/conexion.webp" alt="" loading="lazy" width="420" height="420">
+          <img src="assets/celular/carrete.webp" alt="" loading="lazy" width="420" height="408">
+        </div>
+        <div class="celular__texto">
+          <p><span class="es">Si juegas en el PC y tienes el juego en el móvil, los dos se <b>amarran por
+            el WiFi de casa</b> y el teléfono deja de ser un teléfono: se vuelve el <b>instrumental de tu
+            barco</b>. No hay cuentas, ni servidor, ni internet — se hablan solos dentro de tu red.</span>
+            <span class="en">If you play on PC and have the game on your phone, the two <b>moor over your
+            home WiFi</b> and the phone stops being a phone: it becomes your <b>ship's instrument panel</b>.
+            No accounts, no server, no internet — they talk to each other inside your network.</span></p>
+          <ul class="celular__lista">
+            <li><b><span class="es">El radar</span><span class="en">The radar</span></b>
+              <span class="es">la rosa gira con tu proa y lo que ronda sale en rojo; el anillo del detector
+                <b>late y vibra</b> más rápido cuanto más cerca está.</span>
+              <span class="en">the rose turns with your bow and what circles you shows in red; the detector
+                ring <b>beats and buzzes</b> faster the closer it gets.</span></li>
+            <li><b><span class="es">El reloj del cielo</span><span class="en">The sky clock</span></b>
+              <span class="es">la hora, el periodo del día, el clima y <b>la luna en su fase</b>, sin quitarle
+                sitio a la pantalla grande.</span>
+              <span class="en">the hour, the part of day, the weather and <b>the moon in its phase</b>, without
+                stealing room from the big screen.</span></li>
+            <li><b><span class="es">La pesca en la mano</span><span class="en">Fishing in your hand</span></b>
+              <span class="es">el carrete es de verdad: giras con el dedo por toda la pantalla y cada muesca
+                <b>hace clic y vibra</b>. Y para el JALA… <b>se sacude el teléfono</b>.</span>
+              <span class="en">the reel is real: you spin it with your finger anywhere on the glass and every
+                notch <b>clicks and buzzes</b>. And to PULL… <b>you shake the phone</b>.</span></li>
+            <li><b><span class="es">Te pegan y tiembla</span><span class="en">They hit you and it shakes</span></b>
+              <span class="es">el golpe que recibes en el PC hace vibrar el teléfono <b>sobre la mesa</b>.</span>
+              <span class="en">the blow you take on the PC makes the phone buzz <b>on the table</b>.</span></li>
+          </ul>
+          <p class="celular__nota">
+            <span class="es">Nadie se amarra a tu barco sin permiso: cuando un teléfono lo pide, el PC
+              pregunta <b>«¿lo aceptas, capitán?»</b>. Y si el WiFi se cae, vuelve solo.</span>
+            <span class="en">Nobody moors to your ship uninvited: when a phone asks, the PC asks you
+              <b>"do you accept, captain?"</b>. And if the WiFi drops, it comes back on its own.</span></p>
+        </div>
+      </div>
 
       <div class="envoltura--angosta">
       <h3 class="subtitulo"><span class="es">Avisarme del zarpe</span><span class="en">Tell me when it sails</span></h3>

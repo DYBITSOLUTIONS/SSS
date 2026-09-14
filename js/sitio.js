@@ -131,6 +131,28 @@
     setTimeout(function () { document.documentElement.classList.add('suave'); }, 120);
   });
 
+  /* ── EL MENÚ DE LA BARRA ──────────────────────────────────────────────
+     En pantalla angosta la barra escondía la navegación entera: quien entraba
+     en una sección solo tenía el "volver al mar". Con ocho pantallas eso ya no
+     vale. El botón la despliega, y se cierra sola al elegir. */
+  (function () {
+    var barra = document.querySelector('.barra');
+    var boton = document.getElementById('btn-menu');
+    if (!barra || !boton) return;
+    function cerrar() {
+      barra.classList.remove('abierta');
+      boton.setAttribute('aria-expanded', 'false');
+    }
+    boton.addEventListener('click', function () {
+      var abierta = barra.classList.toggle('abierta');
+      boton.setAttribute('aria-expanded', abierta ? 'true' : 'false');
+    });
+    var nav = document.getElementById('barra-nav');
+    if (nav) nav.addEventListener('click', cerrar);
+    window.addEventListener('hashchange', cerrar);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrar(); });
+  })();
+
   /* ── LAS PANTALLAS ────────────────────────────────────────────────────
      El sitio se recorre como el menú de un juego: la portada es la cubierta y
      cada sección se abre encima del mar, de una en una. La dirección manda
@@ -150,6 +172,9 @@
     if (q && q.get('tira') === '1') return null;   // la toma larga las quiere todas
 
     document.documentElement.setAttribute('data-pantallas', '');
+    // ?ya=1 es el flag de las fotos: sin animación de entrada, o la captura
+    // pilla la pantalla a medio aparecer y sale entera desvaída.
+    if (q && q.get('ya') === '1') cuerpo.classList.add('sin-animar');
 
     function existe(id) {
       if (!id) return null;
