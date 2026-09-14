@@ -649,14 +649,38 @@ body.tira .heroe { min-height: 620px; }
 
 .rejilla-noche {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
   margin-top: 48px;
 }
+
+/* LAS TRES CARTAS DE LA NOCHE van dentro de la CARTA CON CALAVERA de la
+   interfaz del juego: tablones oscuros, esquinas de hierro y la calavera con
+   los huesos cruzados al pie. Lo que cuenta esta sección —insomnio, asedio,
+   mar negro— es exactamente lo que esa carta anuncia en el juego.
+
+   La proporción de la carta manda (aspect-ratio), el texto vive en el tercio
+   de arriba y el pie se deja LIBRE para la calavera: por eso el padding de
+   abajo es enorme. Si algún texto creciera de más, la carta crece con él y el
+   fondo se estira un poco — se prefiere eso a que el texto pise el hueso. */
 .carta--noche {
-  background: linear-gradient(180deg, rgba(9, 14, 26, .92), rgba(4, 8, 16, .95));
-  border-color: rgba(201, 162, 39, .16);
+  position: relative;
+  /* Algo más corta que el original (1008 -> 900): con el texto que llevan,
+     la carta entera dejaba un palmo de tablón vacío en medio. Y el contenido
+     va CENTRADO en el hueco útil, no pegado arriba. */
+  aspect-ratio: 620 / 900;
+  padding: 13% 15% 27%;
+  background: url("../assets/marcos/carta.webp") center / 100% 100% no-repeat;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+.carta--noche::before { display: none; }      /* la esquina dibujada sobra: la trae el marco */
+.carta--noche:hover { transform: none; background-color: transparent; }
+.carta--noche h3 { margin-bottom: 10px; }
+.carta--noche p { font-size: .93rem; line-height: 1.55; }
 .etiqueta--suelta {
   margin-bottom: 12px;
   border-color: rgba(201, 162, 39, .22);
@@ -669,11 +693,11 @@ body.tira .heroe { min-height: 620px; }
 .carta--conarte > * { position: relative; z-index: 1; }
 .carta__arte {
   position: absolute;
-  right: -18px;
-  bottom: -14px;
-  height: 118%;
+  right: 4%;
+  bottom: 22%;
+  height: 62%;
   width: auto;
-  opacity: .27;
+  opacity: .42;
   z-index: 0 !important;
   pointer-events: none;
   filter: grayscale(.2) contrast(1.1);
@@ -1477,6 +1501,15 @@ body[data-pantalla="portada"] .heroe__plataformas {
   .chip--menu { display: grid; place-items: center; padding: 7px 10px; }
 }
 
+
+@media (max-width: 1000px) {
+  .rejilla-noche { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .rejilla-noche { grid-template-columns: 1fr; gap: 16px; }
+  /* A una columna la carta sería enorme: se ensancha y se acorta un poco. */
+  .carta--noche { aspect-ratio: 620 / 820; padding: 11% 13% 25%; }
+}
 
 /* ═══════════════ EL FOGÓN Y LAS MÁQUINAS ═══════════════ */
 
