@@ -321,12 +321,29 @@
      la de abajo tiene que empezar BIEN ANTES de que la anterior acabe. Antes el
      margen era de tres milésimas de pantalla —dos o tres píxeles— y la junta se
      leía como una raya. Ahora va de 20 a 60 milésimas. */
+  /* DIEZ HILERAS, no cinco (14 sep, pedido del usuario mirando el juego: "más
+     olas en vez de olas más grandes y estiradas"). Tenía razón: en el juego el
+     mar es una textura DENSA de crestas pequeñas que se aprietan hacia el
+     horizonte, y aquí eran cinco olas enormes estiradas a lo ancho de la
+     pantalla. El estirón defendía de la costura… pero de eso ya se encarga el
+     ESPEJO de las copias impares, así que se puede repetir mucho más.
+
+     La tabla no está puesta a ojo: las `y` siguen una curva de perspectiva
+     (juntas arriba, separadas abajo) y los `alto` se calcularon HACIA ARRIBA
+     para que cada hilera tape el filo de la anterior con margen (el PNG trae su
+     24% de arriba en degradado: ver el comentario del solape). `estira` va de
+     0,20 arriba —cinco copias, olas diminutas— a 0,70 abajo. */
   var HILERAS = [
-    { y: 0.500, alto: 0.100, vel: 4,  alfa: 0.55, estira: 0.62 },
-    { y: 0.548, alto: 0.135, vel: 8,  alfa: 0.68, estira: 0.80 },
-    { y: 0.606, alto: 0.175, vel: 14, alfa: 0.80, estira: 1.05 },
-    { y: 0.678, alto: 0.235, vel: 27, alfa: 0.90, estira: 1.45 },
-    { y: 0.775, alto: 0.320, vel: 48, alfa: 0.98, estira: 1.90 }
+    { y: 0.498, alto: 0.051, vel: 2,  alfa: 0.52, estira: 0.20 },
+    { y: 0.508, alto: 0.069, vel: 2,  alfa: 0.57, estira: 0.22 },
+    { y: 0.533, alto: 0.085, vel: 4,  alfa: 0.62, estira: 0.26 },
+    { y: 0.570, alto: 0.100, vel: 7,  alfa: 0.67, estira: 0.31 },
+    { y: 0.619, alto: 0.115, vel: 12, alfa: 0.72, estira: 0.36 },
+    { y: 0.679, alto: 0.129, vel: 19, alfa: 0.78, estira: 0.42 },
+    { y: 0.749, alto: 0.143, vel: 27, alfa: 0.83, estira: 0.48 },
+    { y: 0.829, alto: 0.163, vel: 37, alfa: 0.88, estira: 0.55 },
+    { y: 0.919, alto: 0.205, vel: 49, alfa: 0.93, estira: 0.62 },
+    { y: 1.018, alto: 0.340, vel: 64, alfa: 0.98, estira: 0.70 }
   ];
   // Capas donde puede asomar una bestia: las 2 hileras dibujadas del fondo + las 5 de tira.
   var CAPAS = 2 + HILERAS.length;
@@ -344,7 +361,12 @@
     var ancho = Math.max(alto * (im.naturalWidth / im.naturalHeight), W * hilera.estira);
     if (ancho < 1) return;
     var y = H * hilera.y;
-    var corr = (reloj * hilera.vel) % (ancho * 2);   // dos anchos: el ciclo del espejo
+    /* Cada hilera arranca DESPLAZADA. Con diez hileras empezando todas en x=0,
+       las crestas se alineaban en columnas y el mar se leía como una rejilla
+       hasta que las velocidades las desincronizaban (medio minuto). El desfase
+       sale de la propia y, así que es el mismo en cada visita. */
+    var desf = (hilera.y * 3137) % (ancho * 2);
+    var corr = (reloj * hilera.vel + desf) % (ancho * 2);   // dos anchos: el ciclo del espejo
     var x = -corr;
 
     ctx.save();
@@ -391,9 +413,13 @@
 
     // Capa: entre qué hileras asoma (0 = al fondo). Las grandes salen CERCA,
     // nunca junto al horizonte: una bestia pequeña y alta se lee como pegatina.
-    var capa = grupo === 'colosos' ? Math.floor(Math.random() * 2)      // al fondo del todo
-      : (grupo === 'pequenas' ? 2 + Math.floor(Math.random() * 2)
-      : (grupo === 'medianas' ? 4 + Math.floor(Math.random() * 2) : 6));
+    /* Doce capas ahora (2 dibujadas + 10 de tira): lo pequeño arriba, lo grande
+       abajo del todo, y los colosos al fondo — un coloso en la orilla no es un
+       coloso, es un bicho. */
+    var capa = grupo === 'colosos' ? Math.floor(Math.random() * 2)
+      : (grupo === 'pequenas' ? 3 + Math.floor(Math.random() * 3)
+      : (grupo === 'medianas' ? 6 + Math.floor(Math.random() * 3)
+      : CAPAS - 2 + Math.floor(Math.random() * 2)));
     /* TAMAÑOS. Antes cada grupo salía SIEMPRE del mismo alto y el mar parecía de
        juguete: todas las bestias medían igual. Ahora cada grupo tiene su
        horquilla —y una de cada siete grandes sale COLOSAL, del tamaño de los
@@ -517,7 +543,7 @@
     var dir = Math.random() < 0.5 ? -1 : 1;
     return {
       img: cargarDe('mar', BARCAS[Math.floor(Math.random() * BARCAS.length)]),
-      capa: Math.random() < 0.6 ? 1 : 2,
+      capa: 1 + Math.floor(Math.random() * 3),
       x: dentro ? 0.15 + Math.random() * 0.7 : (dir > 0 ? -0.18 : 1.18),
       dir: dir,
       vel: 0.008 + Math.random() * 0.010,
@@ -1078,10 +1104,14 @@
         if (imA) dibujarHilera(imA, hil, hil.alfa * (1 - cruce), !!mA.iris, h * 40);
         if (imB) dibujarHilera(imB, hil, hil.alfa * cruce, !!mB.iris, h * 40);
       } else {
-        // Respaldo mientras el PNG viaja por la red: las olas de siempre.
-        var ct = mezcla(horiz, hondo, 0.5 + h * 0.25);
-        ct = mezcla(ct, [0, 0, 0], 0.2 + h * 0.14);
-        dibujarTira(TIRAS[2 + h], ct, reloj);
+        /* Respaldo mientras el PNG viaja por la red. Se construye de la propia
+           hilera: antes venía de TIRAS[2+h], una tabla paralela que había que
+           mantener a la par — con diez hileras se habría salido de ella. */
+        var f = h / (HILERAS.length - 1);
+        var ct = mezcla(horiz, hondo, 0.35 + f * 0.65);
+        ct = mezcla(ct, [0, 0, 0], 0.16 + f * 0.34);
+        dibujarTira({ y: hil.y, amp: hil.alto * 0.20, onda: 0.0035 + f * 0.011,
+                      vel: 0.12 + f * 0.8 }, ct, reloj);
       }
     }
 
