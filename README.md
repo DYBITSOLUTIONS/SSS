@@ -190,6 +190,8 @@ En la barra de direcciones, al estilo de los flags del juego:
 | `?tira=1` | Apaga las pantallas: la página entera, seguida, para una toma larga. |
 | `?coloso=1` | Planta un coloso (Leviatán o Kraken) ya emergido: salen por lotería y una foto no espera. |
 | `?silueta=<id>` | Fija lo que asoma en el horizonte: `isla`, `roca`, `ciudad`, `isla_oro`. |
+| `?menu=1` | Deja el menú de la barra desplegado (un clic no cabe en una foto). |
+| `?postal=1` | La portada DESNUDA: solo el grabado, el lema y el mar. De aquí sale `assets/og.webp`, la imagen que se ve al compartir el enlace. |
 
 Cualquiera de ellos se salta el telón de entrada.
 
@@ -200,7 +202,11 @@ Cualquiera de ellos se salta el telón de entrada.
 2. Edge sin ventana **ignora el ancla** (`#seccion`) de la URL al capturar: para
    eso está `?ir=`. (El `#hash` sí funciona para abrir una pantalla, porque de
    eso se encarga el JS, no el desplazamiento del navegador.)
-3. Windows **no abre ventanas de menos de ~500 px**, así que una captura a 412
+3. Edge sin ventana **rinde en un viewport MÁS PEQUEÑO que la ventana pedida**
+   (con `--window-size=1220,715` el área útil fue 1194×622) y rellena el resto
+   de negro. Para una imagen de medida exacta —la tarjeta social son 1200×630—
+   hay que pedir de más y **recortar el área no negra** antes de escalar.
+4. Windows **no abre ventanas de menos de ~500 px**, así que una captura a 412
    sale recortada y parece un desbordamiento que no existe. El móvil se mira
    dentro de un iframe de 412 (`_prueba_movil.html`).
 

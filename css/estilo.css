@@ -1583,6 +1583,23 @@ body[data-pantalla="portada"] .heroe__plataformas {
 }
 
 
+/* ═══════════════ POSTAL (?postal=1) ═══════════════ */
+/* La portada desnuda: solo el grabado, el lema y el mar. De aquí sale la imagen
+   que se ve al compartir el enlace (y la que mira cualquiera que pegue la
+   dirección en Discord o en una ficha de tienda). */
+body.postal .barra,
+body.postal .rumbos,
+body.postal .marea-rotulo,
+body.postal .heroe__botones,
+body.postal .heroe__plataformas,
+body.postal .pie { display: none !important; }
+/* Clavado a la ventana, no a 100vh: en una captura sin ventana, vh no mide lo
+   que parece y quedaba una banda negra abajo. Fixed no miente. */
+body.postal .heroe { position: fixed; inset: 0; min-height: 0; padding: 0 6vw; }
+body.postal .heroe__logo { width: min(680px, 78vw); }
+body.postal .mar__velo { opacity: .55; }
+
+
 /* ═══════════════ APARICIONES AL DESPLAZAR ═══════════════ */
 
 .aparece {

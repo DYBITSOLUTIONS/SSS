@@ -183,6 +183,9 @@
     // ?ya=1 es el flag de las fotos: sin animación de entrada, o la captura
     // pilla la pantalla a medio aparecer y sale entera desvaída.
     if (q && q.get('ya') === '1') cuerpo.classList.add('sin-animar');
+    // ?postal=1: la portada DESNUDA (sin barra, rumbos ni rótulo) para la
+    // tarjeta social y para cualquier foto de prensa. Es el "fichav" del juego.
+    if (q && q.get('postal') === '1') cuerpo.classList.add('postal');
 
     function existe(id) {
       if (!id) return null;
