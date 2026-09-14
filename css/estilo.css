@@ -1632,6 +1632,74 @@ body[data-pantalla="portada"] .heroe__plataformas {
   .platos__da { font-size: .76rem; }
 }
 
+/* ═══════════════ EL REGISTRO DE A BORDO (las seis mareas) ═══════════════ */
+/* El panel de la interfaz del juego trae CINCO renglones —seis franjas— y una
+   columna de seis iconos a la izquierda (clima, moneda, mochila, tricornio,
+   pistola, ancla). Las mareas de color son seis exactas, así que cada una cae
+   en su renglón: no es una lista sobre un fondo bonito, es la lista EN su sitio.
+
+   Los números salieron de medir el PNG, no de tantear: los renglones están en
+   el 22,4 / 35,3 / 48,1 / 61,2 / 74,2 por ciento del alto —equidistantes cada
+   12,95—, así que el área útil va del 9,45 al 87,15 y los iconos ocupan hasta
+   el 9 por ciento del ancho.
+
+   Solo en pantalla ancha: por debajo de unos mil cien píxeles cada franja se
+   queda en menos de cien y el texto de la marea no entra. Ahí vuelve la lista
+   de tarjetas de siempre. */
+@media (min-width: 1080px) {
+  .registro {
+    position: relative;
+    margin: 48px auto 0;
+    padding-top: 76.9%;                 /* 769/1000: la proporción del panel */
+    background: url("../assets/marcos/registro.webp") center / 100% 100% no-repeat;
+    filter: drop-shadow(0 18px 38px rgba(0, 0, 0, .7));
+  }
+  .registro .mareas {
+    position: absolute;
+    top: 9.45%;
+    bottom: 12.85%;
+    left: 13%;            /* aire entre el icono grabado y la muestra de color */
+    right: 5%;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 0;
+  }
+  .registro .mareas li {
+    background: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0 8px;
+    overflow: hidden;
+    grid-template-columns: 46px 1fr;
+    gap: 18px;
+  }
+  .registro .mareas li:hover { transform: none; }
+  .registro .mareas__muestra { width: 46px; height: 46px; }
+  .registro .mareas__regla { font-size: .86rem; }
+}
+
+/* La séptima, la que no tiene color: fuera del registro, en su propia línea. */
+.marea-iris {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 16px;
+  align-items: center;
+  max-width: 720px;
+  margin: 22px auto 0;
+  padding: 16px 18px;
+  background: linear-gradient(120deg, rgba(40, 22, 52, .7), var(--panel-alto));
+  border: 1px solid rgba(201, 162, 39, .26);
+  border-radius: var(--radio);
+}
+.marea-iris .mareas__muestra.es-iris {
+  background: linear-gradient(140deg, #ff8a8a, #ffe08a, #8affc0, #8ad2ff, #c89aff);
+  width: 58px; height: 58px;
+  border-radius: var(--radio);
+  border: 1px solid rgba(255, 255, 255, .18);
+}
+
 /* ═══════════════ LO QUE EL MAR ESCONDE ═══════════════ */
 
 .islas {

@@ -338,16 +338,23 @@
 
     // ── La lista de mareas: misma tabla, mismos colores ──
     var lista = document.getElementById('lista-mareas');
+    var iris = document.getElementById('marea-iris');
     if (lista) {
       window.Mar.MAREAS.forEach(function (m) {
-        var li = document.createElement('li');
-        var muestra;
+        /* LA PRISMÁTICA SALE DEL REGISTRO. El panel del juego tiene seis
+           renglones y seis iconos, y las mareas de color son seis: la séptima
+           es justo la que no tiene color, así que va debajo, en su línea. */
         if (m.id === 'prismatica') {
-          li.className = 'es-iris';
-          muestra = 'linear-gradient(140deg,#ff8a8a,#ffe08a,#8affc0,#8ad2ff,#c89aff)';
-        } else {
-          muestra = 'linear-gradient(180deg,' + window.Mar.rgb(m.horiz) + ',' + window.Mar.rgb(m.hondo) + ')';
+          if (iris) {
+            iris.innerHTML =
+              '<span class="mareas__muestra es-iris"></span>' +
+              '<span><span class="mareas__nombre">' + dosLenguas(m.es, m.en) + '</span>' +
+              '<span class="mareas__regla">' + dosLenguas(m.reglaEs, m.reglaEn) + '</span></span>';
+          }
+          return;
         }
+        var li = document.createElement('li');
+        var muestra = 'linear-gradient(180deg,' + window.Mar.rgb(m.horiz) + ',' + window.Mar.rgb(m.hondo) + ')';
         li.innerHTML =
           '<span class="mareas__muestra" style="background:' + muestra + '"></span>' +
           '<span><span class="mareas__nombre">' + dosLenguas(m.es, m.en) + '</span>' +
