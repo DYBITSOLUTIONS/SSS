@@ -1,0 +1,5 @@
+# Sweet Sweet Sea — dybitsolutions.github.io/SSS
+User-agent: *
+Allow: /
+
+Sitemap: https://dybitsolutions.github.io/SSS/sitemap.xml

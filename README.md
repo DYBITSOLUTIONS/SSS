@@ -19,6 +19,8 @@ Web pública del juego, servida por GitHub Pages en
 | `assets/gente/` | Los cuatro marineros jugables y los seis vecinos del muelle. |
 | `assets/lunas/` | Las ocho fases pintadas + la de sangre (las del instrumental del juego). |
 | `assets/celular/` | La placa de conexión y el carrete del instrumental. |
+| `site.webmanifest` | Para que el sitio se pueda "instalar" en el móvil (nombre, iconos, color). |
+| `robots.txt` · `sitemap.xml` | Lo que leen los buscadores. |
 | `assets/olas/` | Las tiras de agua de cada marea. |
 | `_prueba_movil.html` | Andamio de pruebas: el móvil dentro de un iframe de 412 px (no se versiona). |
 | `_foto.ps1` | Fotografía la web con Edge sin ventana (no se versiona). |
@@ -31,9 +33,14 @@ Lo único externo son las fuentes de Google Fonts.
 Se recorre como el menú de un juego. La **portada** es la cubierta —logo, lema,
 dos botones y los **rumbos**— y no lleva texto largo: ahí el contenido es el mar
 vivo y lo que asoma en él. Las **ocho pantallas** (`#juego`, `#juegas`,
-`#muelle`, `#marineros`, `#bestiario`, `#noche`, `#mareas`, `#jugar`) se abren
-encima del agua, de una en una, con su *volver al mar* arriba y su *siguiente*
-al pie.
+`#muelle`, `#marineros`, `#bestiario`, `#noche`, `#mareas` —que se llama *El
+mar* y lleva las mareas **y las islas**—, `#jugar`) se abren encima del agua, de
+una en una, con su *volver al mar* arriba y su *siguiente* al pie.
+
+Se recorren también **con el teclado**: las flechas ← → pasan de una a otra y
+Escape vuelve a cubierta. Al abrirse, el foco viaja con la pantalla — sin eso,
+quien navega con teclado o con lector se quedaba con el foco en la barra
+mientras la página entera cambiaba debajo.
 
 Desde 1080 px hacia abajo la barra no cabe: el botón **≡** despliega las ocho
 (antes la navegación desaparecía del todo en el móvil y desde una sección solo
@@ -144,6 +151,17 @@ La luna llevaba siempre la misma mordida. Ahora:
   (la segunda es más chica, lleva otra fase y late), la de leche vela la luna en
   niebla y el sargazo se queda **sin estrellas**. El rótulo lo nombra — en el
   juego la noche siempre dice su causa.
+
+## Lo que no se ve
+
+- **La ficha del juego para los buscadores** (`schema.org/VideoGame`, en el
+  `<head>`): convierte un enlace suelto en una tarjeta con plataformas, ofertas
+  y capturas. Esta página es la que apuntará desde la ficha de Steam, así que
+  conviene que se presente bien. Lleva también `canonical`.
+- **`site.webmanifest`**: el sitio se puede añadir a la pantalla de inicio del
+  móvil con el icono de la app y el color del abismo.
+- **`robots.txt` + `sitemap.xml`**: la portada y la política, nada más — el
+  resto del sitio son pantallas de la misma página.
 
 ## Que no se atasque
 

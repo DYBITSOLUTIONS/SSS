@@ -266,7 +266,12 @@ body.tira .heroe { min-height: 620px; }
 
 /* ═══════════════ RÓTULO DE MAREA ═══════════════ */
 
+/* El rótulo es un ENLACE a la pantalla del mar: lo que se ve de fondo se
+   explica ahí, y quien lo lee suele querer saber más. */
 .marea-rotulo {
+  display: block;
+  text-decoration: none;
+  color: inherit;
   position: absolute;
   left: max(16px, 4vw);
   bottom: 26px;
@@ -1001,6 +1006,9 @@ body.tira .heroe { min-height: 620px; }
 
 
 /* La línea del cielo en el rótulo de la marea */
+.marea-rotulo:hover { border-color: var(--oro); background: var(--panel-alto); }
+.marea-rotulo:hover .marea-rotulo__nombre { color: var(--oro-vivo); }
+
 .marea-rotulo__cielo {
   display: block;
   margin-top: 6px;
@@ -1026,6 +1034,9 @@ body.tira .heroe { min-height: 620px; }
    js/sitio.js, así que quien llegue con el JS caído (o un buscador) sigue
    leyendo la página entera de arriba abajo, como antes. */
 html[data-pantallas] .pantalla:not(.activa) { display: none; }
+/* La pantalla recibe el foco al abrirse (para el teclado y los lectores), pero
+   no tiene que pintar el aro: no es un control, es el destino. */
+html[data-pantallas] .pantalla:focus { outline: none; }
 html[data-pantallas] .pantalla.activa {
   animation: pantalla-entra .5s cubic-bezier(.2, .7, .3, 1) both;
 }
@@ -1443,6 +1454,65 @@ body[data-pantalla="portada"] .heroe__plataformas {
   .chip--menu { display: grid; place-items: center; padding: 7px 10px; }
 }
 
+
+/* ═══════════════ LO QUE EL MAR ESCONDE ═══════════════ */
+
+.islas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 26px;
+}
+.islas article {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  padding: 20px;
+  background: var(--panel);
+  border: 1px solid rgba(201, 162, 39, .12);
+  border-radius: var(--radio);
+}
+/* El grid reparte CADA hijo en su celda, asi que el texto va envuelto en su
+   propio div: si no, el h4 y los parrafos caían en celdas sueltas y el texto
+   terminaba debajo de la imagen, en una columna de cien píxeles. */
+.islas__txt { min-width: 0; }
+.islas img {
+  width: 96px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .8));
+}
+.islas h4 {
+  font-family: var(--titulo);
+  font-size: 1.02rem;
+  letter-spacing: .03em;
+  color: var(--oro-palido);
+  margin: 0 0 8px;
+}
+.islas p { margin: 0; font-size: .94rem; color: var(--tenue); line-height: 1.55; }
+.islas__nota {
+  margin-top: 10px !important;
+  padding-top: 10px;
+  border-top: 1px solid rgba(201, 162, 39, .12);
+  font-size: .88rem !important;
+  font-style: italic;
+  color: var(--apagado) !important;
+}
+/* La Ciudad y la Puerta mandan: cruzan la fila. */
+.islas--ancha, .islas--oro { grid-column: 1 / -1; }
+.islas--ancha img { width: 150px; }
+.islas--ancha { grid-template-columns: 150px minmax(0, 1fr); }
+.islas--oro {
+  border-color: var(--oro-tenue);
+  background: linear-gradient(180deg, rgba(28, 22, 6, .55), var(--panel));
+}
+
+@media (max-width: 860px) {
+  .islas { grid-template-columns: 1fr; }
+  .islas article, .islas--ancha { grid-template-columns: 72px minmax(0, 1fr); gap: 14px; padding: 16px; }
+  .islas img, .islas--ancha img { width: 72px; }
+}
 
 /* ═══════════════ PANTALLAS BAJAS (el portátil de 768) ═══════════════ */
 /* Visto a 1366x768, que es la pantalla del usuario: la portada NO CABÍA —la

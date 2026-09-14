@@ -15,11 +15,64 @@
 <meta property="og:url" content="https://dybitsolutions.github.io/SSS/">
 <meta name="twitter:card" content="summary_large_image">
 
+<link rel="canonical" href="https://dybitsolutions.github.io/SSS/">
 <link rel="icon" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="manifest" href="site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/estilo.css">
+
+<!-- La ficha del juego para los buscadores (schema.org). Es lo que convierte un
+     enlace suelto en una tarjeta con plataformas y capturas — y esta página es la
+     que apuntará desde la ficha de Steam, así que conviene que se presente bien. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Sweet Sweet Sea",
+  "alternateName": "Dulce Dulce Mar",
+  "url": "https://dybitsolutions.github.io/SSS/",
+  "image": "https://dybitsolutions.github.io/SSS/assets/og.webp",
+  "description": "Pesca de día, defiende el muelle de noche, doma a las bestias del abismo y junta las tres llaves de la Puerta Hundida. Supervivencia náutica melancólica para PC y Android.",
+  "inLanguage": ["es", "en"],
+  "genre": ["Survival", "Adventure", "Horror"],
+  "gamePlatform": ["PC", "Android"],
+  "operatingSystem": ["Windows", "Android"],
+  "applicationCategory": "Game",
+  "author": {
+    "@type": "Organization",
+    "name": "D & B IT-SOLUTIONS S.A.C.",
+    "email": "empresa@byditsolutions.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "D & B IT-SOLUTIONS S.A.C."
+  },
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Versión completa (Google Play)",
+      "url": "https://play.google.com/store/apps/details?id=com.dybitsolutions.dulcedulcemar",
+      "category": "paid"
+    },
+    {
+      "@type": "Offer",
+      "name": "Versión gratuita (Google Play)",
+      "url": "https://play.google.com/store/apps/details?id=com.dybitsolutions.dulcedulcemar.free",
+      "price": "0",
+      "priceCurrency": "USD",
+      "category": "free"
+    }
+  ],
+  "screenshot": [
+    "https://dybitsolutions.github.io/SSS/assets/capturas/muelle.webp",
+    "https://dybitsolutions.github.io/SSS/assets/capturas/bestias.webp",
+    "https://dybitsolutions.github.io/SSS/assets/capturas/pesca.webp"
+  ]
+}
+</script>
 </head>
 
 <body class="lang-es velo-activo">
@@ -68,7 +121,7 @@
     <a href="#marineros"><span class="es">Marineros</span><span class="en">Sailors</span></a>
     <a href="#bestiario"><span class="es">Bestiario</span><span class="en">Bestiary</span></a>
     <a href="#noche"><span class="es">La noche</span><span class="en">Night</span></a>
-    <a href="#mareas"><span class="es">Mareas</span><span class="en">Tides</span></a>
+    <a href="#mareas"><span class="es">El mar</span><span class="en">The sea</span></a>
     <a href="#jugar"><span class="es">Jugar</span><span class="en">Play</span></a>
   </nav>
   <div class="barra__controles">
@@ -144,8 +197,8 @@
         <span class="rumbo__pie"><span class="es">insomnio, asedio, tinta</span><span class="en">insomnia, siege, ink</span></span>
       </a>
       <a class="rumbo" href="#mareas">
-        <span class="rumbo__nombre"><span class="es">Mareas</span><span class="en">Tides</span></span>
-        <span class="rumbo__pie"><span class="es">seis aguas, seis reglas</span><span class="en">six waters, six rules</span></span>
+        <span class="rumbo__nombre"><span class="es">El mar</span><span class="en">The sea</span></span>
+        <span class="rumbo__pie"><span class="es">seis aguas y lo que esconden</span><span class="en">six waters and their secrets</span></span>
       </a>
       <a class="rumbo rumbo--oro" href="#jugar">
         <span class="rumbo__nombre"><span class="es">Jugar</span><span class="en">Play</span></span>
@@ -154,14 +207,14 @@
     </nav>
 
     <!-- Rótulo de la marea viva -->
-    <div id="rotulo-marea" class="marea-rotulo" aria-live="polite">
+    <a id="rotulo-marea" class="marea-rotulo" href="#mareas" aria-live="polite">
       <span class="marea-rotulo__ojo"><span class="es">El mar hoy</span><span class="en">The sea today</span></span>
       <strong id="marea-nombre" class="marea-rotulo__nombre">Mar en calma</strong>
       <span id="marea-nota" class="marea-rotulo__nota"></span>
       <!-- Qué hay esta noche ahí arriba: la fase de la luna o la noche rara.
            (En el juego, la noche SIEMPRE nombra su causa; aquí igual.) -->
       <span id="marea-cielo" class="marea-rotulo__cielo"></span>
-    </div>
+    </a>
   </section>
 
   <!-- ═══════════ EL JUEGO ═══════════ -->
@@ -950,7 +1003,7 @@
 
       <nav class="pantalla__sigue">
         <a href="#mareas">
-          <span class="es">Siguiente: Las mareas</span><span class="en">Next: The tides</span>
+          <span class="es">Siguiente: El mar</span><span class="en">Next: The sea</span>
         </a>
       </nav>
     </div>
@@ -965,10 +1018,16 @@
         </a>
       </p>
       <h2 class="titulo">
-        <span class="es">Las seis mareas</span>
-        <span class="en">The six tides</span>
+        <span class="es">El mar</span>
+        <span class="en">The sea</span>
       </h2>
       <p class="parrafo parrafo--grande">
+        <span class="es">Lo que el agua cambia… y lo que el agua esconde.</span>
+        <span class="en">What the water changes… and what the water hides.</span>
+      </p>
+
+      <h3 class="subtitulo"><span class="es">Las seis mareas</span><span class="en">The six tides</span></h3>
+      <p class="parrafo parrafo--centro parrafo--corto">
         <span class="es">Algunos amaneceres el mar entero cambia de color.</span>
         <span class="en">Some dawns the whole sea changes colour.</span>
       </p>
@@ -981,9 +1040,111 @@
 
       <ul class="mareas" id="lista-mareas"><!-- la puebla js/sitio.js desde la misma tabla que pinta el mar --></ul>
 
+      <!-- LO QUE EL MAR ESCONDE -->
+      <h3 class="subtitulo"><span class="es">Y lo que el mar esconde</span><span class="en">And what the sea hides</span></h3>
+      <p class="parrafo parrafo--centro parrafo--corto">
+        <span class="es">Para el juego esto es el final; para el mar, un rodeo.
+          Ahí fuera hay tierra que no existe, tierra que sí, y una puerta bajo el agua.</span>
+        <span class="en">For the game this is the ending; for the sea, a detour.
+          Out there is land that isn't, land that is, and a door under the water.</span>
+      </p>
+
+      <div class="islas">
+        <article>
+          <img src="assets/mar/isla.webp" alt="" loading="lazy" width="272" height="228">
+          <div class="islas__txt">
+          <h4><span class="es">La isla que llama</span><span class="en">The island that calls</span></h4>
+          <p><span class="es">Para el bote y el mar empieza a tentarte: la calma, una cortina de niebla,
+            una campana… y al fondo una isla con una <b>cueva-calavera</b> cuyos ojos delatan lo que es.
+            Desembarcar es tirar los dados: ilusión, trampa, tesoro o maldición.</span>
+            <span class="en">Stop the boat and the sea starts tempting you: the calm, a curtain of fog,
+            a bell… and far off an island with a <b>skull-cave</b> whose eyes give away what it is.
+            Going ashore is a roll of the dice: illusion, trap, treasure or curse.</span></p>
+        </div>
+        </article>
+        <article>
+          <img src="assets/mar/torbellino.webp" alt="" loading="lazy" width="380" height="315">
+          <div class="islas__txt">
+          <h4><span class="es">Y a veces se hunde contigo</span><span class="en">And sometimes it sinks with you</span></h4>
+          <p><span class="es">Si era trampa, la isla entera <b>escora y se hunde ante tu proa</b> — remolino,
+            burbujeo, espuma— y la bestia sale del mismo remolino ya cazándote. Nada de monstruos
+            dormidos: el mar no pierde el tiempo.</span>
+            <span class="en">If it was a trap, the whole island <b>lists and sinks before your bow</b> — whirlpool,
+            bubbling, foam— and the beast comes out of that same whirlpool already hunting you. No sleeping
+            monsters: the sea doesn't waste time.</span></p>
+        </div>
+        </article>
+        <article>
+          <img src="assets/items/cofre.webp" alt="" loading="lazy" width="249" height="208">
+          <div class="islas__txt">
+          <h4><span class="es">La isla varada</span><span class="en">The beached island</span></h4>
+          <p><span class="es">A veces la quilla <b>toca arena</b>: el brillo era espejismo, pero la isla es real.
+            Bajas a pie, y en algún rincón hay una cruz de tablones. <b>Cinco paladas</b> — y cada palada
+            despierta a los ahogados. A la quinta sube el cofre.</span>
+            <span class="en">Sometimes the keel <b>touches sand</b>: the glimmer was a mirage, but the island is
+            real. You go ashore on foot, and somewhere there's a cross of planks. <b>Five spadefuls</b> — and
+            every one wakes the drowned. On the fifth, the chest comes up.</span></p>
+          <p class="islas__nota">
+            <span class="es">Las gaviotas no vuelan sobre mentiras: si unas aves la sobrevuelan en círculo
+              desde lejos, esa isla no miente.</span>
+            <span class="en">Gulls don't fly over lies: if birds circle above it from afar, that island isn't lying.</span></p>
+        </div>
+        </article>
+        <article>
+          <img src="assets/items/corazon.webp" alt="" loading="lazy" width="300" height="300">
+          <div class="islas__txt">
+          <h4><span class="es">El volcán</span><span class="en">The volcano</span></h4>
+          <p><span class="es">Cuando la esfera de la adivina se llena de <b>humo negro</b>, la tierra tiene
+            fiebre: el muelle tiembla dos días y al tercer amanecer humea una montaña que ayer no existía.
+            Al pie late una grieta, y arrancarle el <b>Corazón de Magma</b> despierta a los cultistas del
+            fuego. Ese corazón <b>afila tu arma un nivel entero</b>: un filo que no se compra.</span>
+            <span class="en">When the fortune-teller's orb fills with <b>black smoke</b>, the earth has a fever:
+            the pier shakes for two days and on the third dawn a mountain that wasn't there yesterday is
+            smoking. At its foot a fissure beats, and tearing the <b>Heart of Magma</b> out of it wakes the
+            fire cultists. That heart <b>sharpens your weapon a whole level</b>: an edge no shop sells.</span></p>
+        </div>
+        </article>
+        <article class="islas--ancha">
+          <img src="assets/mar/ciudad.webp" alt="" loading="lazy" width="460" height="443">
+          <div class="islas__txt">
+          <h4><span class="es">La Ciudad Hundida</span><span class="en">The Sunken City</span></h4>
+          <p><span class="es">Siempre al norte, mar negro adentro, una silueta de torres negras atraviesa la
+            niebla. <b>No es ilusión</b>: es de piedra, y su mole frena el casco. Avistarla cuesta ocho de
+            cordura, y el Padre del Abismo ronda sus aguas — llegar es esquivarlo o matarlo. En las vueltas
+            ya no guarda él la puerta: el mar manda a su <b>Rey</b>, siete cabezas y siete coronas.</span>
+            <span class="en">Always north, deep in the black sea, a silhouette of black towers cuts through the
+            fog. <b>It isn't an illusion</b>: it's stone, and its bulk stops your hull. Sighting it costs eight
+            sanity, and the Father of the Abyss patrols those waters — getting there means dodging him or
+            killing him. On later loops he no longer guards the door: the sea sends its <b>King</b>, seven
+            heads and seven crowns.</span></p>
+        </div>
+        </article>
+        <article class="islas--oro">
+          <img src="assets/items/llave.webp" alt="" loading="lazy" width="127" height="300">
+          <div class="islas__txt">
+          <h4><span class="es">La Puerta Hundida</span><span class="en">The Sunken Gate</span></h4>
+          <p><span class="es">Al pie de las torres, tres cerraduras de coral. Cada <b>llave oxidada</b> que
+            pescas de noche es una decisión: ¿el cofre de hoy, o la Puerta? Dentro está el tesoro de todos
+            los ahogados, el Corazón del Mar y la Corona del Fin del Mar.</span>
+            <span class="en">At the foot of the towers, three coral locks. Every <b>rusted key</b> you fish up at
+            night is a decision: today's chest, or the Gate? Inside lies the treasure of all the drowned,
+            the Heart of the Sea and the Crown of the World's End.</span></p>
+          <p class="islas__nota">
+            <span class="es">Y entonces la Puerta susurra su oferta: <b>volver al primer día conservando todo
+              lo tuyo</b>. Si aceptas, despiertas en tu cama, día uno, con tu oro, tu equipo y tus bestias… y el
+              mar vuelve a mentir, esta vez con más hambre. <i>El final es la mentira más grande del mar.
+              Por eso se puede vivir tantas veces.</i></span>
+            <span class="en">And then the Gate whispers its offer: <b>go back to the first day and keep everything
+              that's yours</b>. Accept, and you wake in your bed, day one, with your gold, your gear and your
+              beasts… and the sea lies again, hungrier this time. <i>The ending is the sea's biggest lie.
+              That's why it can be lived so many times.</i></span></p>
+        </div>
+        </article>
+      </div>
+
       <nav class="pantalla__sigue">
         <a href="#jugar">
-          <span class="es">Siguiente: Dónde jugar</span><span class="en">Next: Where to play</span>
+          <span class="es">Siguiente: Dónde zarpar</span><span class="en">Next: Where to sail</span>
         </a>
       </nav>
     </div>

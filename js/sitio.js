@@ -179,6 +179,7 @@
     if (q && q.get('tira') === '1') return null;   // la toma larga las quiere todas
 
     document.documentElement.setAttribute('data-pantallas', '');
+    Array.prototype.forEach.call(lista, function (p) { p.setAttribute('tabindex', '-1'); });
     // ?ya=1 es el flag de las fotos: sin animación de entrada, o la captura
     // pilla la pantalla a medio aparecer y sale entera desvaída.
     if (q && q.get('ya') === '1') cuerpo.classList.add('sin-animar');
@@ -220,8 +221,29 @@
         else a.removeAttribute('aria-current');
       });
       if (subir) window.scrollTo(0, 0);
+      /* EL FOCO VIAJA CON LA PANTALLA. Sin esto, quien navega con teclado o con
+         lector de pantalla cambiaba de sección y se quedaba con el foco en la
+         barra: la página entera cambiaba debajo sin que nada lo dijera. */
+      if (subir) {
+        try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+      }
       destapar(el);
     }
+
+    // Las flechas mueven de pantalla, como en el menú de un juego.
+    var orden = Array.prototype.map.call(lista, function (p) { return p.id; });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;          // atrás/adelante del navegador
+      var t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      var i = orden.indexOf(actual);
+      if (i < 0) return;
+      var j = i + (e.key === 'ArrowRight' ? 1 : -1);
+      if (j < 0 || j >= orden.length) return;
+      e.preventDefault();
+      location.hash = '#' + orden[j];
+    });
 
     window.addEventListener('hashchange', function () {
       abrir(delHash() || 'portada', true);
