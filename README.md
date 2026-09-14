@@ -17,6 +17,8 @@ Web pública del juego, servida por GitHub Pages en
 | `assets/mar/` | Barcas náufragas, isla, roca, lo que flota y las nubes. |
 | `assets/items/` | Las cuatro armas, la botella y la llave. |
 | `assets/gente/` | Los cuatro marineros jugables y los seis vecinos del muelle. |
+| `assets/comida/` | Los doce platos del fogón, con sus grabados. |
+| `assets/baratijas/` | Lo que la draga sube del fondo del puerto. |
 | `assets/lunas/` | Las ocho fases pintadas + la de sangre (las del instrumental del juego). |
 | `assets/celular/` | La placa de conexión y el carrete del instrumental. |
 | `site.webmanifest` | Para que el sitio se pueda "instalar" en el móvil (nombre, iconos, color). |
