@@ -1651,6 +1651,101 @@ body[data-pantalla="portada"] .heroe__plataformas {
   .platos__da { font-size: .76rem; }
 }
 
+/* ═══════════════ EL EQUIPO (cañas y sombreros) ═══════════════ */
+/* Cada pieza va en una CASILLA recortada de la ficha de inventario del juego
+   (huds/posible inventario.png): una sola casilla, repetida, en vez de intentar
+   encajar el contenido en la rejilla entera del PNG — así la cuadrícula se
+   adapta a cualquier número de columnas y al móvil. */
+.casilla {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 12%;
+  background: url("../assets/marcos/casilla.webp") center / 100% 100% no-repeat;
+}
+.casilla img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .8));
+}
+
+/* Las seis cañas, en fila */
+.canas {
+  list-style: none;
+  margin: 0 auto 38px;
+  padding: 0;
+  max-width: 720px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.canas li { text-align: center; }
+.canas b {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--titulo);
+  font-size: .92rem;
+  color: var(--oro);
+}
+
+/* Los dieciséis sombreros */
+.equipo__titulo {
+  font-family: var(--titulo);
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  letter-spacing: .06em;
+  text-align: center;
+  color: var(--oro-vivo);
+  margin: 40px 0 10px;
+}
+.equipo {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.equipo li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 3px;
+}
+.equipo .casilla { width: 100%; max-width: 132px; margin-bottom: 6px; }
+.equipo li > b {
+  font-family: var(--titulo);
+  font-size: .9rem;
+  line-height: 1.25;
+  color: var(--hueso);
+}
+.equipo__que { font-size: .82rem; color: var(--tenue); line-height: 1.4; }
+.equipo__como {
+  font-size: .78rem;
+  font-style: italic;
+  color: var(--apagado);
+  margin-top: 2px;
+}
+.equipo__como::before { content: "— "; }
+/* El que no se nombra */
+.equipo li.es-secreto > b { color: var(--oro-vivo); letter-spacing: .2em; }
+.equipo li.es-secreto .casilla { filter: brightness(.82) contrast(1.1); }
+
+@media (max-width: 900px) {
+  .equipo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .canas { grid-template-columns: repeat(3, 1fr); max-width: 380px; }
+}
+@media (max-width: 560px) {
+  .equipo { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .equipo .casilla { max-width: 108px; }
+  .equipo li > b { font-size: .84rem; }
+  .equipo__que { font-size: .76rem; }
+  .equipo__como { font-size: .72rem; }
+}
+
 /* ═══════════════ EL REGISTRO DE A BORDO (las seis mareas) ═══════════════ */
 /* El panel de la interfaz del juego trae CINCO renglones —seis franjas— y una
    columna de seis iconos a la izquierda (clima, moneda, mochila, tricornio,
