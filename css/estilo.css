@@ -659,6 +659,24 @@ body.tira .heroe { min-height: 620px; }
   color: var(--apagado);
 }
 
+/* Una carta con la bestia asomando por detrás del texto, apagada para que
+   no le robe la lectura: el coloso está ahí, pero el texto manda. */
+.carta--conarte { position: relative; overflow: hidden; }
+.carta--conarte > * { position: relative; z-index: 1; }
+.carta__arte {
+  position: absolute;
+  right: -18px;
+  bottom: -14px;
+  height: 118%;
+  width: auto;
+  opacity: .27;
+  z-index: 0 !important;
+  pointer-events: none;
+  filter: grayscale(.2) contrast(1.1);
+  -webkit-mask-image: linear-gradient(270deg, #000 30%, transparent 92%);
+  mask-image: linear-gradient(270deg, #000 30%, transparent 92%);
+}
+
 /* Los cuatro fenómenos, cada uno con el color que el juego le da en la agenda */
 /* Son cuatro: en dos columnas quedan 2×2, no tres arriba y una huérfana. */
 .fenomenos {

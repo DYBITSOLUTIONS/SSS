@@ -192,7 +192,7 @@
   var ARCHIVOS = {
     grandes: ['leviatan', 'kraken', 'serpiente', 'calamar', 'ballena'],
     medianas: ['megalodon', 'tentaculo'],
-    pequenas: ['sirena', 'cthulhu', 'rape', 'tortuga']
+    pequenas: ['sirena', 'cthulhu', 'rape', 'tortuga', 'espectro', 'cultista']
   };
   var imagenes = {};
   function cargar(nombre) {
