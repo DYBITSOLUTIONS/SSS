@@ -19,6 +19,8 @@ Web pública del juego, servida por GitHub Pages en
 | `assets/gente/` | Los cuatro marineros jugables y los seis vecinos del muelle. |
 | `assets/comida/` | Los doce platos del fogón, con sus grabados. |
 | `assets/baratijas/` | Lo que la draga sube del fondo del puerto. |
+| `assets/marcos/` | Los marcos de latón de la interfaz del juego: el ojo de buey y el marco de las fotos. |
+| `assets/titulo.webp` | El título sin caja, sobre transparencia: el que flota en la portada. |
 | `assets/lunas/` | Las ocho fases pintadas + la de sangre (las del instrumental del juego). |
 | `assets/celular/` | La placa de conexión y el carrete del instrumental. |
 | `site.webmanifest` | Para que el sitio se pueda "instalar" en el móvil (nombre, iconos, color). |

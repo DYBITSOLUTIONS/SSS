@@ -225,12 +225,16 @@ body.tira .heroe { min-height: 620px; }
       rgba(4, 7, 12, 0) 84%);
 }
 
+/* EL TÍTULO FLOTA. Antes era el grabado con su marco y su fondo oscuro: un
+   cuadro colgado delante del mar, con un borde que cortaba el agua en seco.
+   Este es el mismo título sin caja —solo las letras, las anclas y la cuerda—,
+   así que el mar pasa por detrás y la portada respira. El borde y el radio
+   murieron con la caja; la sombra se queda, que es lo que lo despega del agua. */
 .heroe__logo {
-  width: min(660px, 92vw);
-  margin: 0 auto 26px;
-  filter: drop-shadow(0 12px 34px rgba(0, 0, 0, .9));
-  border: 1px solid var(--oro-tenue);
-  border-radius: var(--radio);
+  width: min(620px, 90vw);
+  margin: 0 auto 22px;
+  filter: drop-shadow(0 10px 26px rgba(0, 0, 0, .95))
+          drop-shadow(0 0 40px rgba(201, 162, 39, .18));
 }
 
 .heroe__lema {
@@ -789,9 +793,13 @@ body.tira .heroe { min-height: 620px; }
   margin-top: 48px;
 }
 .capturas figure { margin: 0; }
+/* Las capturas van en el MARCO DE LATÓN del juego (el mismo de su interfaz),
+   con border-image de nueve trozos: las esquinas se quedan y los lados se
+   repiten, así que vale para cualquier tamaño. Un borde de un píxel era de
+   página web; esto es de a bordo. */
 .capturas img {
-  border: 1px solid var(--oro-tenue);
-  border-radius: var(--radio);
+  border: 16px solid transparent;
+  border-image: url("../assets/marcos/marco.webp") 21% round;
   box-shadow: 0 16px 40px rgba(0, 0, 0, .6);
   transition: transform .4s, box-shadow .4s;
 }
@@ -936,10 +944,8 @@ body.tira .heroe { min-height: 620px; }
 .telon__logo {
   position: relative;
   z-index: 1;
-  width: min(560px, 88vw);
+  width: min(540px, 86vw);
   filter: drop-shadow(0 14px 40px rgba(0, 0, 0, .9));
-  border: 1px solid rgba(201, 162, 39, .45);
-  border-radius: var(--radio);
 }
 .telon__verso {
   font-size: clamp(1rem, 2.4vw, 1.22rem);
@@ -1316,13 +1322,30 @@ body[data-pantalla="portada"] .heroe__plataformas {
   transition: border-color .3s ease, transform .3s cubic-bezier(.2, .7, .3, 1);
 }
 .vecinos figure:hover { border-color: var(--oro-tenue); transform: translateY(-3px); }
-.vecinos img {
-  height: 150px;
-  width: auto;
+/* EL OJO DE BUEY. Los vecinos van dentro del marco redondo de latón del juego
+   (el mismo que usa su interfaz): un retrato en un ojo de buey se lee como la
+   ficha de alguien a bordo, no como una imagen pegada. El marco es el fondo y
+   el retrato va dentro, por encima de su cristal oscuro. */
+.ojo {
+  position: relative;
+  display: block;
+  width: 190px;
   max-width: 100%;
+  aspect-ratio: 520 / 510;
+  margin: 0 auto 12px;
+  background: url("../assets/marcos/ojo.webp") center / contain no-repeat;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .75));
+}
+.ojo img {
+  position: absolute;
+  left: 50%;
+  top: 49%;
+  transform: translate(-50%, -50%);
+  width: 66%;
+  height: 66%;
   object-fit: contain;
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .8));
-  margin-bottom: 10px;
+  object-position: center bottom;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .6));
 }
 .vecinos figcaption { font-size: .88rem; color: var(--apagado); line-height: 1.45; }
 .vecinos figcaption b {
