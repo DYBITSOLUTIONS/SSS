@@ -1421,9 +1421,11 @@ body[data-pantalla="portada"] .heroe__plataformas {
     flex-direction: column;
     gap: 0;
     padding: 6px max(16px, 4vw) 14px;
-    background: var(--panel-alto);
+    /* OPACO del todo: con el panel a 0,86 se leía el grabado del título por
+       debajo de los enlaces y el menú parecía roto (visto en la captura). */
+    background: #05080d;
     border-bottom: 1px solid var(--oro-tenue);
-    backdrop-filter: blur(6px);
+    box-shadow: 0 18px 30px rgba(0, 0, 0, .6);
   }
   .barra.abierta .barra__nav { display: flex; }
   .barra__nav a {
@@ -1433,6 +1435,43 @@ body[data-pantalla="portada"] .heroe__plataformas {
   }
   .barra__nav a:last-child { border-bottom: 0; }
   .chip--menu { display: grid; place-items: center; padding: 7px 10px; }
+}
+
+
+/* ═══════════════ EL MÓVIL DE VERDAD ═══════════════ */
+/* Todo esto salió de mirar las capturas a 412 px, no de suponer. */
+
+@media (max-width: 760px) {
+  /* El bloque del celular tenía DOS COLUMNAS FIJAS (320 px + el resto): en un
+     teléfono al texto le quedaban veintiocho píxeles y salía una palabra por
+     línea, desbordada. Aquí va apilado. */
+  .celular { grid-template-columns: 1fr; gap: 20px; padding: 18px; }
+  .celular__arte { max-width: 280px; margin: 0 auto; }
+}
+
+@media (max-width: 560px) {
+  /* La tabla de lo que muerde son trece piezas: a una columna era un scroll
+     sin final. A dos se lee igual y ocupa la mitad. */
+  .captura { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .captura li { padding: 10px 8px 12px; }
+  .captura img { height: 46px; }
+  .captura li > b { font-size: .85rem; }
+  .captura span { font-size: .78rem; }
+
+  /* Diez bestias a una columna, lo mismo. */
+  .rejilla-bestias { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .bestia { padding: 12px 10px; }
+  .bestia img { height: 118px; }
+  .bestia figcaption { font-size: .8rem; }
+
+  /* Los seis vecinos: el retrato, más pequeño; si no, la pantalla del muelle
+     mide cuatro pantallas de alto. */
+  .vecinos img { height: 118px; }
+  .vecinos figcaption { font-size: .84rem; }
+
+  /* Los cuatro marineros, igual de altos que un teléfono entero. */
+  .marineros img { height: 200px; }
+  .marineros figure { padding: 16px 14px 18px; }
 }
 
 

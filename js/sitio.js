@@ -143,6 +143,13 @@
       barra.classList.remove('abierta');
       boton.setAttribute('aria-expanded', 'false');
     }
+    // Flag de captura: ?menu=1 lo deja desplegado (un clic no cabe en una foto).
+    try {
+      if (new URLSearchParams(location.search).get('menu') === '1') {
+        barra.classList.add('abierta');
+        boton.setAttribute('aria-expanded', 'true');
+      }
+    } catch (e) {}
     boton.addEventListener('click', function () {
       var abierta = barra.classList.toggle('abierta');
       boton.setAttribute('aria-expanded', abierta ? 'true' : 'false');
