@@ -1508,12 +1508,31 @@ body[data-pantalla="portada"] .heroe__plataformas {
     box-shadow: 0 18px 30px rgba(0, 0, 0, .6);
   }
   .barra.abierta .barra__nav { display: flex; }
+  /* CADA ENLACE ES UNA BARRA DE SELECCIÓN del juego (huds/seleccion.png), y la
+     pantalla en la que estás lleva la barra ENCENDIDA —la del filo grueso con
+     su destello—, igual que la fila marcada de un menú de allí. Nueve trozos
+     (border-image): las esquinas achaflanadas y el filo dorado conservan su
+     grosor por mucho que se estire la barra, que es justo lo que no aguanta un
+     fondo estirado (el filo se quedaba en medio píxel). */
   .barra__nav a {
-    padding: 11px 2px;
-    border-bottom: 1px solid rgba(201, 162, 39, .10);
+    padding: 13px 18px;
+    margin-bottom: 7px;
+    border-style: solid;
+    border-width: 7px 16px;
+    border-image: url("../assets/marcos/sel.webp") 15 34 fill;
     font-size: .95rem;
+    color: var(--tenue);
   }
-  .barra__nav a:last-child { border-bottom: 0; }
+  .barra__nav a:last-child { margin-bottom: 0; }
+  .barra__nav a[aria-current="page"] {
+    border-image: url("../assets/marcos/sel_on.webp") 17 34 fill;
+    color: var(--oro-palido);
+  }
+  .barra__nav a:hover,
+  .barra__nav a:active {
+    border-image: url("../assets/marcos/sel_on.webp") 17 34 fill;
+    color: var(--oro-vivo);
+  }
   .chip--menu { display: grid; place-items: center; padding: 7px 10px; }
 }
 
