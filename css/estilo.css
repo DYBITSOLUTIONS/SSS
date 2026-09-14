@@ -620,6 +620,106 @@ body.tira .heroe { min-height: 620px; }
 }
 
 
+/* ═══════════════ LA NOCHE ═══════════════ */
+
+/* Más honda que las demás: aquí el mar de fondo casi no se ve, a propósito.
+   La tira de agua nocturna del juego cierra la sección por abajo. */
+.seccion--noche {
+  background:
+    linear-gradient(180deg, rgba(2, 4, 8, .72), rgba(3, 8, 16, .93) 40%, rgba(2, 4, 8, .88));
+  position: relative;
+  overflow: hidden;
+  /* sitio para que la tira de agua del pie no pise la última fila */
+  padding-bottom: clamp(150px, 16vw, 210px);
+}
+.seccion--noche::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 120px;
+  background: url("../assets/olas/noche.webp") repeat-x bottom center;
+  background-size: auto 120px;
+  opacity: .5;
+  pointer-events: none;
+}
+
+.rejilla-noche {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 18px;
+  margin-top: 48px;
+}
+.carta--noche {
+  background: linear-gradient(180deg, rgba(9, 14, 26, .92), rgba(4, 8, 16, .95));
+  border-color: rgba(201, 162, 39, .16);
+}
+.etiqueta--suelta {
+  margin-bottom: 12px;
+  border-color: rgba(201, 162, 39, .22);
+  color: var(--apagado);
+}
+
+/* Los cuatro fenómenos, cada uno con el color que el juego le da en la agenda */
+/* Son cuatro: en dos columnas quedan 2×2, no tres arriba y una huérfana. */
+.fenomenos {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 14px;
+}
+.fenomenos li {
+  padding: 18px 20px 20px;
+  background: rgba(4, 9, 16, .78);
+  border: 1px solid rgba(255, 255, 255, .05);
+  border-top: 2px solid var(--tinte, var(--oro));
+  border-radius: var(--radio);
+  font-size: .92rem;
+  color: var(--tenue);
+  line-height: 1.5;
+  position: relative;
+}
+.fenomenos li b {
+  display: block;
+  font-family: var(--titulo);
+  font-size: 1.06rem;
+  letter-spacing: .05em;
+  color: var(--tinte, var(--oro-vivo));
+  margin-bottom: 7px;
+}
+.fenomenos li b + span b,
+.fenomenos li span b { display: inline; font-family: var(--serif); font-size: 1em; color: var(--hueso); margin: 0; letter-spacing: 0; }
+
+/* Las cuatro fiestas: una lista sobria, que no compita con los fenómenos */
+.fiestas {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+  gap: 10px;
+}
+.fiestas li {
+  padding: 13px 16px;
+  border-left: 2px solid var(--oro-tenue);
+  background: rgba(4, 9, 16, .5);
+  font-size: .88rem;
+  color: var(--apagado);
+  line-height: 1.45;
+}
+.fiestas li b {
+  display: block;
+  font-family: var(--titulo);
+  font-size: .93rem;
+  letter-spacing: .05em;
+  color: var(--oro-vivo);
+  margin-bottom: 2px;
+}
+
+.parrafo--corto { max-width: 640px; }
+
+
 /* ═══════════════ MAREAS ═══════════════ */
 
 .mareas {

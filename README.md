@@ -27,6 +27,31 @@ copia manual y está marcada con un comentario en el propio archivo.
 
 La prismática no lleva color: los cicla, igual que `GM.color_prismatica()`.
 
+### Las tiras de agua
+
+`assets/olas/*.webp` son los **PNG de verdad** del juego
+(`assets/sprites/mundo/mar_tira_N.png`), a dieta. El número de cada marea sale
+de `world_sea.gd::_paleta_mar()` y de `GM.MAREAS.tiras` (se usa la tira
+*cercana*, que es la que se ve):
+
+| Web | Tira del juego | De dónde |
+|---|---|---|
+| `calma` | 1 | día par `[1,1,3]` |
+| `dorada` | 12 | `GM.MAREAS.dorada` |
+| `sangre` | 10 | `GM.MAREAS.sangre` |
+| `leche` | 11 | `GM.MAREAS.leche` |
+| `rosada` | 9 | `GM.MAREAS.rosada` |
+| `sargazo` | 5 | `GM.MAREAS.sargazo` |
+| `noche` | 3 | noche `[3,3,6]` — decora el pie de la sección "La noche" |
+
+Se cargan **solo cuando hacen falta** (la de ahora y la de después); mientras
+no llegan, el mar tira de las olas dibujadas. La prismática no tiene tira
+propia: usa la de calma con el tono girando.
+
+Al dibujarlas se **ensanchan** hasta pasar del ancho de la ventana
+(`HILERAS[].estira`): a su proporción natural la tira entra dos o tres veces en
+pantalla y el ojo caza el patrón, que se lee como papel pintado y no como agua.
+
 ## Flags de captura
 
 En la barra de direcciones, al estilo de los flags del juego:

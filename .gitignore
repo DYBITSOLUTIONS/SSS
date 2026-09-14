@@ -1,3 +1,27 @@
-# Andamios de prueba: no se publican
+# ─── NADA DE CREDENCIALES EN UN REPO PÚBLICO ───────────────────────────
+# Este repo se publica entero en GitHub Pages: TODO lo que se commitea aquí
+# queda a la vista de cualquiera. Estas reglas son un cinturón de seguridad,
+# no un permiso para acercar secretos a esta carpeta.
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+*.keystore
+*.jks
+.env
+.env.*
+*_secret*
+*_token*
+*credential*
+id_rsa*
+*.ppk
+
+# ─── Andamios de prueba: no se publican ────────────────────────────────
 _prueba_movil.html
 _capturas/
+
+# ─── Basura del sistema ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

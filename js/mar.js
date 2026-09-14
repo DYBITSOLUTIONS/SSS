@@ -19,6 +19,7 @@
   var MAREAS = [
     {
       id: 'calma',
+      tira: 'calma',
       es: 'Mar en calma',            en: 'Calm sea',
       hondo: [41, 97, 133],          horiz: [77, 133, 163],
       notaEs: 'Nada anuncia nada. Aprovecha.',
@@ -28,6 +29,7 @@
     },
     {
       id: 'dorada',
+      tira: 'dorada',
       es: 'Marea Dorada',            en: 'Golden Tide',
       hondo: [115, 82, 20],          horiz: [173, 133, 41],
       notaEs: 'Hay monedas girando en la espuma… y el oro llama.',
@@ -37,6 +39,7 @@
     },
     {
       id: 'prismatica',
+      tira: 'calma', iris: true,
       es: 'Marea Prismática',        en: 'Prismatic Tide',
       hondo: null,                   horiz: null,   // los cicla: ver colorIris()
       notaEs: 'El mar no tiene color hoy: los tiene todos.',
@@ -46,6 +49,7 @@
     },
     {
       id: 'sangre',
+      tira: 'sangre',
       es: 'Marea de Sangre',         en: 'Blood Tide',
       hondo: [66, 10, 13],           horiz: [107, 26, 23],
       notaEs: 'No es coral, no es alga: el agua huele a hierro.',
@@ -55,6 +59,7 @@
     },
     {
       id: 'leche',
+      tira: 'leche',
       es: 'Mar de Leche',            en: 'Sea of Milk',
       hondo: [140, 148, 153],        horiz: [191, 196, 199],
       notaEs: 'La niebla y el agua son una sola cosa. Escucha.',
@@ -64,6 +69,7 @@
     },
     {
       id: 'rosada',
+      tira: 'rosada',
       es: 'Marea Rosada',            en: 'Rose Tide',
       hondo: [107, 26, 66],          horiz: [158, 71, 112],
       notaEs: 'Encendido por dentro como una brasa fría.',
@@ -73,6 +79,7 @@
     },
     {
       id: 'sargazo',
+      tira: 'sargazo',
       es: 'El Sargazo',              en: 'The Sargasso',
       hondo: [26, 71, 46],           horiz: [51, 102, 71],
       notaEs: 'Algas hasta donde alcanza la vista. El bote se arrastra.',
@@ -206,12 +213,73 @@
     try { return typeof ctx.filter === 'string'; } catch (e) { return false; }
   })();
 
+  /* ── LAS TIRAS DE AGUA ────────────────────────────────────────────────
+     Los mismos PNG que el juego reparte en hileras (assets/sprites/mundo/
+     mar_tira_N.png): cada marea trae la suya, con su color YA dentro — la
+     dorada incluso lleva monedas girando en la espuma. Se piden solo cuando
+     hacen falta (la de ahora y la de después); mientras no llegan, el mar
+     se apaña con las olas dibujadas, que es el respaldo de siempre. */
+  var tiras = {};
+  function cargarTira(nombre) {
+    if (!nombre) return null;
+    if (tiras[nombre]) return tiras[nombre];
+    var im = new Image();
+    im.decoding = 'async';
+    im.src = 'assets/olas/' + nombre + '.webp';
+    tiras[nombre] = im;
+    return im;
+  }
+  function tiraLista(nombre) {
+    var im = tiras[nombre];
+    return (im && im.complete && im.naturalWidth) ? im : null;
+  }
+
+  /* Las tres hileras cercanas van con PNG; las lejanas siguen dibujadas.
+     y = dónde flota · alto = cuánto mide · vel = px/s · estira = cuánto se
+     ensancha la tira respecto a la pantalla (ver abajo por qué). */
+  var HILERAS = [
+    { y: 0.640, alto: 0.105, vel: 11, alfa: 0.55, estira: 1.15 },
+    { y: 0.748, alto: 0.150, vel: 25, alfa: 0.78, estira: 1.45 },
+    { y: 0.882, alto: 0.215, vel: 48, alfa: 0.95, estira: 1.9 }
+  ];
+
+  /* Dibuja una tira repetida a lo ancho. El PNG trae la cresta arriba, así
+     que su borde superior ES la línea de flotación de esa hilera.
+
+     EL ESTIRÓN: a su proporción natural, la tira entra 2 o 3 veces en la
+     pantalla y el ojo caza el patrón al instante — se lee como papel pintado,
+     no como agua. Ensanchándola hasta pasar del ancho de la ventana, la
+     costura ocurre como mucho una vez y las olas salen más largas y mansas,
+     que es justo lo que se quiere de fondo. */
+  function dibujarHilera(im, hilera, alfa, iris, desfaseIris) {
+    var alto = H * hilera.alto;
+    var ancho = Math.max(alto * (im.naturalWidth / im.naturalHeight), W * hilera.estira);
+    if (ancho < 1) return;
+    var y = H * hilera.y;
+    var corr = (reloj * hilera.vel) % ancho;
+    var x = -corr;
+
+    ctx.save();
+    ctx.globalAlpha = alfa;
+    if (iris && hayFiltro) {
+      ctx.filter = 'hue-rotate(' + Math.round((reloj * 26 + (desfaseIris || 0)) % 360) +
+                   'deg) saturate(1.5)';
+    }
+    // Una copia de más por la derecha: al desplazarse no debe abrirse hueco.
+    for (; x < W; x += ancho) ctx.drawImage(im, x, y, ancho, alto);
+    ctx.restore();
+  }
+
   function nacerAparicion(iris) {
     // El iris siempre es una bestia grande: tiene que verse que es rara.
     var grupo = iris ? 'grandes'
       : (Math.random() < 0.45 ? 'grandes' : (Math.random() < 0.55 ? 'medianas' : 'pequenas'));
     var lista = ARCHIVOS[grupo];
-    var nombre = lista[Math.floor(Math.random() * lista.length)];
+    // Sin repetidos a la vista: dos megalodones iguales a la vez cantan mucho.
+    var enAgua = apariciones.map(function (a) { return a.nombre; });
+    var libres = lista.filter(function (n) { return enAgua.indexOf(n) < 0; });
+    if (!libres.length) libres = lista;
+    var nombre = libres[Math.floor(Math.random() * libres.length)];
 
     // Capa: entre qué hileras asoma (0 = al fondo). Las grandes salen CERCA,
     // nunca junto al horizonte: una bestia pequeña y alta se lee como pegatina.
@@ -252,7 +320,7 @@
     }
   }
 
-  function dibujarAparicion(a, tiraY, tiraAlto) {
+  function dibujarAparicion(a, aguaY) {
     var im = a.img;
     if (!im.complete || !im.naturalWidth) return;
 
@@ -272,8 +340,8 @@
     var alto = Math.min(H * a.alto, im.naturalHeight * 1.15);
     var ancho = alto * (im.naturalWidth / im.naturalHeight);
     var x = a.x * W;
-    // La línea de flotación de esta capa: la bestia sale DE ahí.
-    var agua = tiraY + tiraAlto * 0.35;
+    // La línea de flotación de su hilera: la bestia sale DE ahí.
+    var agua = aguaY;
     var y = agua - alto * f;
 
     ctx.save();
@@ -437,18 +505,43 @@
 
     // ── hileras + bestias intercaladas ──
     poblar();
-    for (var c = 0; c < TIRAS.length; c++) {
-      // las bestias de esta capa se dibujan ANTES de su hilera: emergen de ella
+
+    // Las bestias de una capa se dibujan ANTES de su hilera: emergen de ella.
+    function bestiasDe(capa, aguaY) {
       for (var a = 0; a < apariciones.length; a++) {
-        if (apariciones[a].capa === c) {
-          dibujarAparicion(apariciones[a], H * TIRAS[c].y, H * TIRAS[c].alto);
-        }
+        if (apariciones[a].capa === capa) dibujarAparicion(apariciones[a], aguaY);
       }
+    }
+
+    // (1) Las dos hileras de LEJOS siguen dibujadas: dan el degradado hacia
+    //     el horizonte, donde un PNG repetido se notaría como un patrón.
+    for (var c = 0; c < 2; c++) {
+      bestiasDe(c, H * TIRAS[c].y);
       var col = mezcla(horiz, hondo, TIRAS[c].mez);
-      // las cercanas, bastante más oscuras: así el agua tiene fondo y no es
-      // una lámina plana. Es el mismo truco de las tiras del juego.
       col = mezcla(col, [0, 0, 0], 0.06 + TIRAS[c].mez * 0.46);
       dibujarTira(TIRAS[c], col, reloj);
+    }
+
+    // (2) Las tres de CERCA son las tiras del juego. Se piden solo estas dos.
+    var mA = MAREAS[indice], mB = MAREAS[siguiente];
+    cargarTira(mA.tira);
+    if (cruce > 0) cargarTira(mB.tira);
+    var imA = tiraLista(mA.tira);
+    var imB = cruce > 0 ? tiraLista(mB.tira) : null;
+
+    for (var h = 0; h < HILERAS.length; h++) {
+      bestiasDe(2 + h, H * HILERAS[h].y);
+      var hil = HILERAS[h];
+      if (imA || imB) {
+        // Durante el viraje, la tira vieja se va mientras la nueva entra.
+        if (imA) dibujarHilera(imA, hil, hil.alfa * (1 - cruce), !!mA.iris, h * 40);
+        if (imB) dibujarHilera(imB, hil, hil.alfa * cruce, !!mB.iris, h * 40);
+      } else {
+        // Respaldo mientras el PNG viaja por la red: las olas de siempre.
+        var ct = mezcla(horiz, hondo, 0.5 + h * 0.25);
+        ct = mezcla(ct, [0, 0, 0], 0.2 + h * 0.14);
+        dibujarTira(TIRAS[2 + h], ct, reloj);
+      }
     }
 
     // ── viñeta ──
