@@ -192,22 +192,36 @@
   // se vuelve a hundir — las "presencias del horizonte" del juego.
   var ARCHIVOS = {
     grandes: ['leviatan', 'kraken', 'serpiente', 'calamar', 'ballena'],
-    medianas: ['megalodon', 'tentaculo'],
-    pequenas: ['sirena', 'cthulhu', 'rape', 'tortuga', 'espectro', 'cultista']
+    medianas: ['megalodon', 'tentaculo', 'serpiente_verde', 'sirena_verde'],
+    // El fondo tenía seis bichos pequeños y se repetían: ahora son diecisiete,
+    // todos criaturas reales del juego (los corales andantes, el cangrejo, el
+    // ermitaño, el lancero de algas, el ahogado del sombrero...).
+    pequenas: ['sirena', 'cthulhu', 'rape', 'tortuga', 'espectro', 'cultista',
+      'anemona', 'cangrejo', 'coral', 'ermitano', 'lancero', 'madero',
+      'pezhombre', 'tortuga_coral', 'ahogado']
   };
+  var PECES = ['anguila', 'atun', 'bacalao', 'caballito', 'campana', 'esqueleto',
+    'globo', 'luminoso', 'medusa', 'sardina', 'tiburon'];
+  var BARCAS = ['velero', 'galeon', 'barca', 'balsa'];
+  var DERIVA = ['boya', 'barril', 'algas', 'huesos', 'maderos'];
+  var SILUETAS = ['isla', 'roca'];
+
+  /* CARGA PEREZOSA. Antes se pedían las catorce bestias de golpe al abrir; con
+     treinta y tantas piezas eso es medio mega antes de ver nada. Ahora cada
+     archivo se pide la primera vez que le toca salir: el mar se puebla poco a
+     poco, así que llegan de sobra a tiempo. */
   var imagenes = {};
-  function cargar(nombre) {
-    if (imagenes[nombre]) return imagenes[nombre];
+  function cargarDe(carpeta, nombre) {
+    var clave = carpeta + '/' + nombre;
+    if (imagenes[clave]) return imagenes[clave];
     var im = new Image();
     im.decoding = 'async';
-    im.src = 'assets/bestias/' + nombre + '.webp';
-    imagenes[nombre] = im;
+    im.src = 'assets/' + clave + '.webp';
+    imagenes[clave] = im;
     return im;
   }
-  // Precarga: primero las que salen antes.
-  ARCHIVOS.grandes.forEach(cargar);
-  ARCHIVOS.medianas.forEach(cargar);
-  ARCHIVOS.pequenas.forEach(cargar);
+  function cargar(nombre) { return cargarDe('bestias', nombre); }
+  function listo(im) { return im && im.complete && im.naturalWidth ? im : null; }
 
   var apariciones = [];
   var hayFiltro = (function () {
@@ -319,9 +333,31 @@
     // nunca junto al horizonte: una bestia pequeña y alta se lee como pegatina.
     var capa = grupo === 'pequenas' ? 2 + Math.floor(Math.random() * 2)
       : (grupo === 'medianas' ? 4 + Math.floor(Math.random() * 2) : 6);
-    // Altura fuera del agua, en fracción de pantalla. Contenida a propósito:
-    // el mar es el fondo de una web, no el escenario de una pelea.
-    var alto = grupo === 'pequenas' ? 0.042 : (grupo === 'medianas' ? 0.075 : 0.115 + Math.random() * 0.055);
+    /* TAMAÑOS. Antes cada grupo salía SIEMPRE del mismo alto y el mar parecía de
+       juguete: todas las bestias medían igual. Ahora cada grupo tiene su
+       horquilla —y una de cada siete grandes sale COLOSAL, del tamaño de los
+       jefes del juego—, así que el mismo bicho no se ve dos veces igual.
+       Sigue contenido a propósito: el mar es el fondo de una web, no el
+       escenario de una pelea. */
+    var alto;
+    if (grupo === 'pequenas') alto = 0.026 + Math.random() * 0.034;
+    else if (grupo === 'medianas') alto = 0.055 + Math.random() * 0.050;
+    else alto = (Math.random() < 0.14 ? 0.200 + Math.random() * 0.080
+                                      : 0.105 + Math.random() * 0.070);
+
+    /* SEPARACIÓN: con el reparto ampliado, tres bestias caían juntas en el mismo
+       palmo de agua y el resto del mar quedaba vacío. Se prueban tres sitios y
+       se elige el que quede más lejos de las que ya están fuera. */
+    var x = 0.08 + Math.random() * 0.84;
+    var mejor = -1;
+    for (var t = 0; t < 3; t++) {
+      var cand = 0.08 + Math.random() * 0.84;
+      var lejos = 1;
+      for (var o = 0; o < apariciones.length; o++) {
+        lejos = Math.min(lejos, Math.abs(apariciones[o].x - cand));
+      }
+      if (lejos > mejor) { mejor = lejos; x = cand; }
+    }
 
     var sube = 3.2 + Math.random() * 1.8;
     return {
@@ -329,7 +365,7 @@
       img: cargar(nombre),
       iris: !!iris,
       capa: capa,
-      x: 0.08 + Math.random() * 0.84,       // fracción del ancho
+      x: x,                                  // fracción del ancho (ya separada)
       alto: alto,                            // fracción de la altura
       giro: Math.random() < 0.5 ? -1 : 1,
       // con ?ya=1 nace con la subida hecha: sale del agua en el primer cuadro
@@ -347,12 +383,223 @@
     for (i = 0; i < apariciones.length; i++) if (apariciones[i].iris) hayIris = true;
     if (!hayIris) apariciones.push(nacerAparicion(true));
 
-    var tope = W < 700 ? 2 : 4;
+    var tope = W < 700 ? 2 : 5;   // hay diecisiete bichos: que se note
     // Con ?ya=1 el mar se puebla de golpe; si no, van asomando poco a poco.
     var prisa = YA && apariciones.length < tope;
     if (apariciones.length < tope && (prisa || Math.random() < 0.02)) {
       apariciones.push(nacerAparicion(false));
     }
+  }
+
+  /* ── LOS PECES QUE SALTAN ─────────────────────────────────────────────
+     Un pez sale del agua en parábola, con el morro siguiendo la curva, y vuelve
+     a entrar con su chapoteo. Son los peces de verdad del juego (los mismos
+     iconos que llenan tu mochila), y duran poco más de un segundo: el mar se
+     mueve aunque no haya ninguna bestia asomando. */
+  var saltos = [];
+  function nacerSalto() {
+    return {
+      img: cargarDe('peces', PECES[Math.floor(Math.random() * PECES.length)]),
+      capa: 3 + Math.floor(Math.random() * (CAPAS - 3)),
+      nace: reloj,
+      dura: 1.1 + Math.random() * 0.8,
+      x: 0.07 + Math.random() * 0.86,
+      dir: Math.random() < 0.5 ? -1 : 1,
+      alto: 0.030 + Math.random() * 0.028,
+      arco: 0.035 + Math.random() * 0.050,
+      corre: 0.03 + Math.random() * 0.05
+    };
+  }
+  function dibujarSalto(sa, aguaY) {
+    var im = listo(sa.img); if (!im) return;
+    var t = (reloj - sa.nace) / sa.dura;
+    if (t < 0 || t > 1) return;
+    var alto = Math.min(H * sa.alto, im.naturalHeight);
+    var ancho = alto * (im.naturalWidth / im.naturalHeight);
+    var x = (sa.x + sa.dir * sa.corre * (t - 0.5)) * W;
+    var y = aguaY - H * sa.arco * Math.sin(Math.PI * t) - alto * 0.35;
+
+    // El chapoteo, al salir y al entrar.
+    var borde = Math.min(t, 1 - t);
+    if (borde < 0.14) {
+      ctx.save();
+      ctx.globalAlpha = (1 - borde / 0.14) * 0.5;
+      ctx.fillStyle = '#e9f6ff';
+      ctx.beginPath();
+      ctx.ellipse(x, aguaY, ancho * (0.5 + borde * 3), alto * 0.16, 0, 0, 6.283);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // El morro sigue la parábola (los peces del juego miran a la IZQUIERDA).
+    var vy = -Math.PI * Math.cos(Math.PI * t) * H * sa.arco;
+    var ang = Math.atan2(-vy, Math.abs(sa.dir * sa.corre * W));
+    ctx.save();
+    ctx.globalAlpha = 0.95;
+    if (hayFiltro) ctx.filter = 'brightness(1.12)';
+    ctx.translate(x, y);
+    ctx.rotate(sa.dir > 0 ? -ang : ang);
+    ctx.scale(sa.dir > 0 ? -1 : 1, 1);
+    ctx.drawImage(im, -ancho / 2, -alto / 2, ancho, alto);
+    ctx.restore();
+  }
+
+  /* ── LAS BARCAS DEL FONDO ─────────────────────────────────────────────
+     Los cascos náufragos del juego (velero, galeón, barca, balsa) cruzando muy
+     despacio por las hileras de lejos, a contraluz. No son decoración inventada:
+     son lo que te encuentras a la deriva ahí fuera. */
+  var barcas = [];
+  function nacerBarca(dentro) {
+    var dir = Math.random() < 0.5 ? -1 : 1;
+    return {
+      img: cargarDe('mar', BARCAS[Math.floor(Math.random() * BARCAS.length)]),
+      capa: Math.random() < 0.6 ? 1 : 2,
+      x: dentro ? 0.15 + Math.random() * 0.7 : (dir > 0 ? -0.18 : 1.18),
+      dir: dir,
+      vel: 0.008 + Math.random() * 0.010,
+      alto: 0.055 + Math.random() * 0.055,
+      desfase: Math.random() * 6.283
+    };
+  }
+  function dibujarBarca(b, aguaY) {
+    var im = listo(b.img); if (!im) return;
+    var alto = Math.min(H * b.alto, im.naturalHeight);
+    var ancho = alto * (im.naturalWidth / im.naturalHeight);
+    var y = aguaY - alto * 0.86 + Math.sin(reloj * 0.7 + b.desfase) * alto * 0.03;
+    ctx.save();
+    ctx.globalAlpha = 0.62;
+    if (hayFiltro) ctx.filter = 'brightness(0.42) contrast(1.1)';
+    ctx.beginPath(); ctx.rect(0, 0, W, aguaY); ctx.clip();
+    ctx.translate(b.x * W, y);
+    ctx.rotate(Math.sin(reloj * 0.6 + b.desfase) * 0.018);
+    if (b.dir < 0) ctx.scale(-1, 1);
+    ctx.drawImage(im, -ancho / 2, 0, ancho, alto);
+    ctx.restore();
+  }
+
+  /* ── LO QUE FLOTA ─────────────────────────────────────────────────────
+     Boya, barril, algas, huesos y maderos: los restos que el juego reparte por
+     el agua. Cabecean en las hileras de cerca y se van con la corriente. */
+  var deriva = [];
+  function nacerDeriva(dentro) {
+    var dir = Math.random() < 0.5 ? -1 : 1;
+    return {
+      img: cargarDe('mar', DERIVA[Math.floor(Math.random() * DERIVA.length)]),
+      capa: CAPAS - 1 - Math.floor(Math.random() * 3),
+      x: dentro ? 0.1 + Math.random() * 0.8 : (dir > 0 ? -0.1 : 1.1),
+      dir: dir,
+      vel: 0.020 + Math.random() * 0.030,
+      alto: 0.030 + Math.random() * 0.030,
+      desfase: Math.random() * 6.283
+    };
+  }
+  function dibujarDeriva(d, aguaY) {
+    var im = listo(d.img); if (!im) return;
+    var alto = Math.min(H * d.alto, im.naturalHeight);
+    var ancho = alto * (im.naturalWidth / im.naturalHeight);
+    var y = aguaY - alto * 0.72 + Math.sin(reloj * 1.1 + d.desfase) * alto * 0.10;
+    ctx.save();
+    ctx.globalAlpha = 0.88;
+    ctx.beginPath(); ctx.rect(0, 0, W, aguaY + alto * 0.3); ctx.clip();
+    ctx.translate(d.x * W, y);
+    ctx.rotate(Math.sin(reloj * 0.9 + d.desfase) * 0.06);
+    ctx.drawImage(im, -ancho / 2, 0, ancho, alto);
+    ctx.restore();
+  }
+
+  /* ── LO QUE HAY EN EL HORIZONTE ───────────────────────────────────────
+     Una isla en la niebla o un roquedo, muy lejos, apareciendo y borrándose
+     como las "presencias del horizonte" del juego: nunca están mucho rato y
+     nunca se acercan. */
+  var lejanias = [];
+  function nacerLejania() {
+    return {
+      img: cargarDe('mar', SILUETAS[Math.floor(Math.random() * SILUETAS.length)]),
+      nace: reloj,
+      dura: 26 + Math.random() * 22,
+      x: 0.1 + Math.random() * 0.8,
+      alto: 0.045 + Math.random() * 0.035,
+      vel: (Math.random() < 0.5 ? -1 : 1) * 0.0015
+    };
+  }
+  function dibujarLejania(l, aguaY) {
+    var im = listo(l.img); if (!im) return;
+    var t = (reloj - l.nace) / l.dura;
+    if (t < 0 || t > 1) return;
+    var f = Math.min(1, Math.min(t, 1 - t) / 0.18);
+    var alto = Math.min(H * l.alto, im.naturalHeight);
+    var ancho = alto * (im.naturalWidth / im.naturalHeight);
+    ctx.save();
+    ctx.globalAlpha = f * 0.5;
+    if (hayFiltro) ctx.filter = 'brightness(0.72) contrast(0.8)';
+    ctx.drawImage(im, (l.x + l.vel * (reloj - l.nace)) * W - ancho / 2, aguaY - alto * 0.94, ancho, alto);
+    ctx.restore();
+  }
+
+  /* ── NUBES ────────────────────────────────────────────────────────────
+     Las tres nubes del juego cruzando el cielo, apenas visibles: el cielo era
+     un degradado liso con estrellas y nada más. */
+  var nubes = [];
+  var sembrado = false;
+  function nacerNube(dentro) {
+    var dir = Math.random() < 0.5 ? -1 : 1;
+    return {
+      img: cargarDe('mar', 'nube_' + (1 + Math.floor(Math.random() * 3))),
+      x: dentro ? Math.random() : (dir > 0 ? -0.3 : 1.3),
+      y: 0.04 + Math.random() * 0.30,
+      dir: dir,
+      vel: 0.004 + Math.random() * 0.006,
+      ancho: 0.22 + Math.random() * 0.26,
+      alfa: 0.10 + Math.random() * 0.14
+    };
+  }
+  function dibujarNube(n) {
+    var im = listo(n.img); if (!im) return;
+    var ancho = W * n.ancho;
+    var alto = ancho * (im.naturalHeight / im.naturalWidth);
+    ctx.save();
+    ctx.globalAlpha = n.alfa;
+    ctx.translate(n.x * W, n.y * H);
+    if (n.dir < 0) ctx.scale(-1, 1);
+    ctx.drawImage(im, -ancho / 2, -alto / 2, ancho, alto);
+    ctx.restore();
+  }
+
+  /* El paso del tiempo de todo lo que va a la deriva (las bestias llevan su
+     propio reloj de nacer / quedarse / hundirse). */
+  function correrDeriva(dt) {
+    var i;
+    for (i = 0; i < barcas.length; i++) barcas[i].x += barcas[i].dir * barcas[i].vel * dt;
+    for (i = 0; i < deriva.length; i++) deriva[i].x += deriva[i].dir * deriva[i].vel * dt;
+    for (i = 0; i < nubes.length; i++) nubes[i].x += nubes[i].dir * nubes[i].vel * dt;
+    barcas = barcas.filter(function (b) { return b.x > -0.3 && b.x < 1.3; });
+    deriva = deriva.filter(function (d) { return d.x > -0.2 && d.x < 1.2; });
+    nubes = nubes.filter(function (n) { return n.x > -0.45 && n.x < 1.45; });
+    saltos = saltos.filter(function (sa) { return reloj - sa.nace <= sa.dura; });
+    lejanias = lejanias.filter(function (l) { return reloj - l.nace <= l.dura; });
+
+    var poco = W < 700;   // en el móvil, la mitad de todo
+
+    /* LA SIEMBRA. Todo esto entra por un borde y tarda su tiempo en cruzar: si
+       no se siembra, el primer minuto de visita el mar está vacío de barcas y
+       de restos (y las fotos salían sin nada). Al abrir, el mar lleva rato ahí:
+       una barca, un par de restos y unas nubes YA puestos. */
+    if (!sembrado) {
+      sembrado = true;
+      barcas.push(nacerBarca(true));
+      deriva.push(nacerDeriva(true));
+      if (!poco) deriva.push(nacerDeriva(true));
+      nubes.push(nacerNube(true));
+      if (!poco) nubes.push(nacerNube(true));
+      lejanias.push(nacerLejania());
+      saltos.push(nacerSalto());
+    }
+
+    if (!barcas.length && Math.random() < 0.004) barcas.push(nacerBarca());
+    if (deriva.length < (poco ? 1 : 3) && Math.random() < 0.012) deriva.push(nacerDeriva());
+    if (!lejanias.length && Math.random() < 0.006) lejanias.push(nacerLejania());
+    if (nubes.length < (poco ? 1 : 3) && Math.random() < 0.010) nubes.push(nacerNube());
+    if (saltos.length < (poco ? 1 : 3) && Math.random() < 0.020) saltos.push(nacerSalto());
   }
 
   function dibujarAparicion(a, aguaY) {
@@ -453,6 +700,151 @@
     ctx.stroke();
   }
 
+  /* ── EL CIELO: LAS OCHO LUNAS Y LAS NOCHES RARAS ──────────────────────
+     La web enseñaba SIEMPRE la misma luna con la misma mordida. En el juego la
+     luna lleva las ocho fases de la de verdad (la del reloj del teléfono) y hay
+     noches que traen otra cosa en el cielo. Aquí igual: se arranca en la fase
+     REAL de hoy y se avanza una con cada marea, así que quien se quede un rato
+     las ve las ocho; y las mareas con carácter traen su cielo. */
+  var FASES = [
+    { es: 'Luna nueva',        en: 'New moon' },
+    { es: 'Luna creciente',    en: 'Waxing crescent' },
+    { es: 'Cuarto creciente',  en: 'First quarter' },
+    { es: 'Gibosa creciente',  en: 'Waxing gibbous' },
+    { es: 'Luna llena',        en: 'Full moon' },
+    { es: 'Gibosa menguante',  en: 'Waning gibbous' },
+    { es: 'Cuarto menguante',  en: 'Last quarter' },
+    { es: 'Luna menguante',    en: 'Waning crescent' }
+  ];
+  /* Los cielos raros son los del juego (GM.FENOMENOS) y cada uno cae en la
+     marea que le pega: la sangre trae la luna roja, la prismática trae la
+     segunda luna que LATE, la de leche vela la luna en niebla y el sargazo
+     -el agua más muerta- se queda sin estrellas. */
+  var CIELOS = {
+    sangre: { es: 'Luna de Sangre',      en: 'Blood Moon' },
+    dos:    { es: 'Las Dos Lunas',       en: 'The Two Moons' },
+    velada: { es: 'Luna velada',         en: 'Veiled moon' },
+    sin:    { es: 'Noche sin Estrellas', en: 'Starless Night' }
+  };
+  var CIELO_DE = { sangre: 'sangre', prismatica: 'dos', leche: 'velada', sargazo: 'sin' };
+
+  // La fase de HOY. Luna nueva de referencia: 6 de enero de 2000, 18:14 UTC.
+  function faseHoy() {
+    var d = (Date.now() - Date.UTC(2000, 0, 6, 18, 14)) / 86400000;
+    var k = (d / 29.530588853) % 1;
+    if (k < 0) k += 1;
+    return Math.round(k * 8) % 8;
+  }
+  var fase = faseHoy();
+
+  /* La luna se pinta en un lienzo APARTE y se pega ya recortada. Dos razones:
+     la mordida de la fase se hace con 'destination-out', que en el lienzo
+     grande abriría un agujero al negro del fondo (el bug del 13 sep), y así la
+     luna entera puede entrar y salir con alfa durante el viraje de marea. */
+  var lunas = {};
+  function lienzoLuna(r, k, color) {
+    r = Math.round(r);
+    var clave = r + '|' + k + '|' + color;
+    if (lunas[clave]) return lunas[clave];
+    if (Object.keys(lunas).length > 48) lunas = {};   // el viraje tiñe: no acumular
+    var lado = r * 2 + 2;
+    var c = document.createElement('canvas');
+    c.width = lado; c.height = lado;
+    var g = c.getContext('2d');
+    var cx = lado / 2, cy = lado / 2;
+    g.fillStyle = color;
+    g.beginPath(); g.arc(cx, cy, r, 0, 6.283); g.fill();
+
+    // Media luna a oscuras (izquierda si crece, derecha si mengua)...
+    var creciente = k < 4;
+    g.globalCompositeOperation = 'destination-out';
+    g.beginPath();
+    if (creciente) g.arc(cx, cy, r, Math.PI / 2, Math.PI * 1.5);
+    else g.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2);
+    g.fill();
+    // ...y el terminador, que es una elipse: si la luz es MENOS de media (fina)
+    // la elipse come más sombra; si es MÁS (gibosa) devuelve luz.
+    var cosang = Math.cos(2 * Math.PI * (k / 8));
+    var rx = Math.abs(cosang) * r;
+    if (rx > 0.4) {
+      if (cosang <= 0) { g.globalCompositeOperation = 'source-over'; g.fillStyle = color; }
+      g.beginPath(); g.ellipse(cx, cy, rx, r, 0, 0, 6.283); g.fill();
+    }
+    lunas[clave] = c;
+    return c;
+  }
+
+  // Cuánto pesa cada cielo ahora mismo (0..1), mezclando durante el viraje.
+  function pesoCielo(id) {
+    var a = CIELO_DE[MAREAS[indice].id] === id ? 1 : 0;
+    var b = CIELO_DE[MAREAS[siguiente].id] === id ? 1 : 0;
+    return a + (b - a) * cruce;
+  }
+
+  function pintarCielo() {
+    var sangriento = pesoCielo('sangre');
+    var dobles = pesoCielo('dos');
+    var velo = pesoCielo('velada');
+    var apagado = pesoCielo('sin');
+
+    // ── estrellas ── (la Noche sin Estrellas las borra)
+    var brilloBase = (1 - apagado) * (1 - velo * 0.55);
+    if (brilloBase > 0.02) {
+      for (var i = 0; i < estrellas.length; i++) {
+        var e = estrellas[i];
+        var brillo = e.base + Math.sin(reloj * e.vel + e.fase) * 0.28;
+        if (brillo <= 0.04) continue;
+        ctx.globalAlpha = Math.min(0.92, brillo) * 0.85 * brilloBase;
+        ctx.fillStyle = '#fdf8ec';
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.r, 0, 6.283);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // ── la luna ──
+    var lr = Math.max(26, Math.min(W, H) * 0.045);
+    var lx = W * 0.82, ly = H * 0.155;
+    var visible = 1 - apagado;
+    if (visible <= 0.02) return;
+
+    var crema = [247, 236, 210];
+    var sangre = [206, 62, 46];
+    var col = mezcla(crema, sangre, sangriento);
+    var colTxt = 'rgb(' + (col[0] | 0) + ',' + (col[1] | 0) + ',' + (col[2] | 0) + ')';
+
+    // El halo: enorme y lechoso con la luna velada, rojo con la de sangre.
+    var haloR = lr * (4.6 + velo * 3.4);
+    var halo = ctx.createRadialGradient(lx, ly, lr * 0.5, lx, ly, haloR);
+    halo.addColorStop(0, 'rgba(' + (col[0] | 0) + ',' + (col[1] | 0) + ',' + (col[2] | 0) + ',' +
+      (0.17 + velo * 0.16 + sangriento * 0.08).toFixed(3) + ')');
+    halo.addColorStop(1, 'rgba(' + (col[0] | 0) + ',' + (col[1] | 0) + ',' + (col[2] | 0) + ',0)');
+    ctx.save();
+    ctx.globalAlpha = visible;
+    ctx.fillStyle = halo;
+    ctx.beginPath(); ctx.arc(lx, ly, haloR, 0, 6.283); ctx.fill();
+
+    var disco = lienzoLuna(lr, fase, colTxt);
+    ctx.globalAlpha = visible * (1 - velo * 0.45);   // velada: se adivina, no se ve
+    ctx.drawImage(disco, lx - disco.width / 2, ly - disco.height / 2);
+
+    /* LA SEGUNDA LUNA: sale más chica, con otra fase (sus cráteres no
+       coinciden, dice el juego) y LATE. No se anuncia sola: el rótulo la
+       nombra, como la noche nombra su causa. */
+    if (dobles > 0.02) {
+      var late = 1 + Math.sin(reloj * 1.9) * 0.055;
+      var r2 = lr * 0.62 * late;
+      // Otra fase que la primera: en el juego "sus cráteres no coinciden".
+      var disco2 = lienzoLuna(r2, (fase + 3) % 8, colTxt);
+      ctx.globalAlpha = visible * dobles * 0.9;
+      // Abajo y a la derecha de la primera: en 0,665 x 0,235 caía DETRÁS del
+      // grabado del título y no se veía (cazado mirando la captura).
+      ctx.drawImage(disco2, W * 0.930 - disco2.width / 2, H * 0.290 - disco2.height / 2);
+    }
+    ctx.restore();
+  }
+
   // ── El cuadro ─────────────────────────────────────────────────────────
   var reloj = 0;
   var indice = 0;          // marea vigente
@@ -468,8 +860,10 @@
     }
   }
 
+  var dtCuadro = 0.016;
   function pintar(dt) {
     reloj += dt;
+    dtCuadro = dt;
 
     // ¿Toca virar de marea? (con ?marea= fija, nunca)
     var desde = reloj - ultimoCambio;
@@ -480,6 +874,7 @@
         siguiente = (siguiente + 1) % MAREAS.length;
         cruce = 0;
         ultimoCambio = reloj;
+        fase = (fase + 1) % 8;   // cada marea, una luna: se ven las ocho
         avisarMarea();
       }
     }
@@ -497,33 +892,11 @@
     ctx.fillStyle = cielo;
     ctx.fillRect(0, 0, W, H * 0.56);
 
-    // ── estrellas ──
-    for (var i = 0; i < estrellas.length; i++) {
-      var e = estrellas[i];
-      var brillo = e.base + Math.sin(reloj * e.vel + e.fase) * 0.28;
-      if (brillo <= 0.04) continue;
-      ctx.globalAlpha = Math.min(0.92, brillo) * 0.85;
-      ctx.fillStyle = '#fdf8ec';
-      ctx.beginPath();
-      ctx.arc(e.x, e.y, e.r, 0, 6.283);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
+    // ── estrellas, luna (con su fase) y las noches raras ──
+    pintarCielo();
 
-    // ── luna (crema, como la del juego) ──
-    // La mordida de la fase se pinta CON EL COLOR DEL CIELO de esa altura:
-    // con 'destination-out' se abría un agujero al fondo negro del lienzo.
-    var lx = W * 0.82, ly = H * 0.155, lr = Math.max(26, Math.min(W, H) * 0.045);
-    var cieloLuna = mezcla(horiz, [3, 5, 10], 0.81);
-    var halo = ctx.createRadialGradient(lx, ly, lr * 0.5, lx, ly, lr * 4.6);
-    halo.addColorStop(0, 'rgba(255,246,222,0.17)');
-    halo.addColorStop(1, 'rgba(255,246,222,0)');
-    ctx.fillStyle = halo;
-    ctx.beginPath(); ctx.arc(lx, ly, lr * 4.6, 0, 6.283); ctx.fill();
-    ctx.fillStyle = '#f7ecd2';
-    ctx.beginPath(); ctx.arc(lx, ly, lr, 0, 6.283); ctx.fill();
-    ctx.fillStyle = rgb(cieloLuna);
-    ctx.beginPath(); ctx.arc(lx - lr * 0.58, ly - lr * 0.2, lr * 0.9, 0, 6.283); ctx.fill();
+    // ── nubes: cruzan el cielo por delante de la luna ──
+    for (var nu = 0; nu < nubes.length; nu++) dibujarNube(nubes[nu]);
 
     // ── bruma del horizonte ──
     var bruma = ctx.createLinearGradient(0, H * 0.40, 0, H * 0.60);
@@ -549,14 +922,20 @@
     ctx.fillStyle = rgb(mezcla(horiz, [255, 250, 235], 0.34), 0.5);
     ctx.fillRect(0, H * 0.50 - 1, W, 1.4);
 
-    // ── hileras + bestias intercaladas ──
-    poblar();
+    // ── lo que hay en el horizonte, detrás de todas las hileras ──
+    for (var le = 0; le < lejanias.length; le++) dibujarLejania(lejanias[le], H * 0.505);
 
-    // Las bestias de una capa se dibujan ANTES de su hilera: emergen de ella.
+    // ── hileras + todo lo que vive entre ellas ──
+    poblar();
+    correrDeriva(dtCuadro);
+
+    // Todo lo de una capa se dibuja ANTES de su hilera: emerge de ella.
     function bestiasDe(capa, aguaY) {
-      for (var a = 0; a < apariciones.length; a++) {
-        if (apariciones[a].capa === capa) dibujarAparicion(apariciones[a], aguaY);
-      }
+      var i;
+      for (i = 0; i < barcas.length; i++) if (barcas[i].capa === capa) dibujarBarca(barcas[i], aguaY);
+      for (i = 0; i < apariciones.length; i++) if (apariciones[i].capa === capa) dibujarAparicion(apariciones[i], aguaY);
+      for (i = 0; i < deriva.length; i++) if (deriva[i].capa === capa) dibujarDeriva(deriva[i], aguaY);
+      for (i = 0; i < saltos.length; i++) if (saltos[i].capa === capa) dibujarSalto(saltos[i], aguaY);
     }
 
     // (1) Las dos hileras de LEJOS siguen dibujadas: dan el degradado hacia
@@ -662,6 +1041,11 @@
   window.Mar = {
     MAREAS: MAREAS,
     mareaActual: function () { return MAREAS[indice]; },
+    // Qué se ve hoy ahí arriba: la fase de la luna y, si la hay, la noche rara.
+    cieloActual: function () {
+      var raro = CIELO_DE[MAREAS[indice].id];
+      return { fase: FASES[fase], cielo: raro ? CIELOS[raro] : null };
+    },
     alCambiarMarea: function (fn) {
       oyentes.push(fn);
       fn(MAREAS[indice], indice);   // arranca sabiendo qué mar hay

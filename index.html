@@ -63,6 +63,7 @@
   </a>
   <nav class="barra__nav">
     <a href="#juego"><span class="es">El juego</span><span class="en">The game</span></a>
+    <a href="#juegas"><span class="es">Cómo se juega</span><span class="en">How it plays</span></a>
     <a href="#bestiario"><span class="es">Bestiario</span><span class="en">Bestiary</span></a>
     <a href="#noche"><span class="es">La noche</span><span class="en">Night</span></a>
     <a href="#mareas"><span class="es">Mareas</span><span class="en">Tides</span></a>
@@ -113,6 +114,10 @@
         <span class="rumbo__nombre"><span class="es">El juego</span><span class="en">The game</span></span>
         <span class="rumbo__pie"><span class="es">pescar, domar, aguantar</span><span class="en">fish, tame, endure</span></span>
       </a>
+      <a class="rumbo" href="#juegas">
+        <span class="rumbo__nombre"><span class="es">Cómo se juega</span><span class="en">How it plays</span></span>
+        <span class="rumbo__pie"><span class="es">la caña, el arpón, el lazo</span><span class="en">rod, harpoon, lasso</span></span>
+      </a>
       <a class="rumbo" href="#bestiario">
         <span class="rumbo__nombre"><span class="es">Bestiario</span><span class="en">Bestiary</span></span>
         <span class="rumbo__pie"><span class="es">lo que sube del fondo</span><span class="en">what rises from below</span></span>
@@ -136,6 +141,9 @@
       <span class="marea-rotulo__ojo"><span class="es">El mar hoy</span><span class="en">The sea today</span></span>
       <strong id="marea-nombre" class="marea-rotulo__nombre">Mar en calma</strong>
       <span id="marea-nota" class="marea-rotulo__nota"></span>
+      <!-- Qué hay esta noche ahí arriba: la fase de la luna o la noche rara.
+           (En el juego, la noche SIEMPRE nombra su causa; aquí igual.) -->
+      <span id="marea-cielo" class="marea-rotulo__cielo"></span>
     </div>
   </section>
 
@@ -233,6 +241,164 @@
       </div>
 
       <nav class="pantalla__sigue">
+        <a href="#juegas">
+          <span class="es">Siguiente: Cómo se juega</span><span class="en">Next: How it plays</span>
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ═══════════ CÓMO SE JUEGA ═══════════ -->
+  <section id="juegas" class="seccion pantalla seccion--honda">
+    <div class="envoltura">
+      <p class="pantalla__ruta">
+        <a class="pantalla__volver" href="#portada">
+          <span class="es">Volver al mar</span><span class="en">Back to the sea</span>
+        </a>
+      </p>
+      <h2 class="titulo">
+        <span class="es">Un día de trabajo</span>
+        <span class="en">A day's work</span>
+      </h2>
+      <p class="parrafo parrafo--grande">
+        <span class="es">De día pescas, rebuscas y vendes. De noche decides si duermes o zarpas.</span>
+        <span class="en">By day you fish, scavenge and sell. By night you decide whether to sleep or sail.</span>
+      </p>
+
+      <!-- LA PESCA -->
+      <h3 class="subtitulo"><span class="es">La pesca</span><span class="en">Fishing</span></h3>
+      <ol class="pasos">
+        <li>
+          <b><span class="es">Saca la caña</span><span class="en">Take out the rod</span></b>
+          <span class="es">Con la rueda de la mano. Sin caña en la mano, ni la silla del muelle ni las boyas del mar te responden.</span>
+          <span class="en">From the hand wheel. With no rod in hand, neither the pier's chair nor the sea's buoys will answer you.</span>
+        </li>
+        <li>
+          <b><span class="es">Espera la mordida</span><span class="en">Wait for the bite</span></b>
+          <span class="es">Echas el sedal y el mar tarda lo que quiere. Cuando algo pica, lo sabes.</span>
+          <span class="en">You cast, and the sea takes as long as it likes. When something bites, you know.</span>
+        </li>
+        <li>
+          <b><span class="es">El forcejeo</span><span class="en">The tug-of-war</span></b>
+          <span class="es">Ahora manda el pez: <b>RECOGE</b>, <b>SUELTA HILO</b>, <b>JALA</b>. Él tira, tú respondes,
+            y la barra de tensión dice quién está ganando. Tirar cuando toca soltar rompe el sedal.</span>
+          <span class="en">Now the fish leads: <b>REEL</b>, <b>GIVE LINE</b>, <b>PULL</b>. It pulls, you answer,
+            and the tension bar says who's winning. Pulling when you should give line snaps the line.</span>
+        </li>
+      </ol>
+      <p class="parrafo parrafo--centro parrafo--corto">
+        <span class="es">Con la mente entera la zona buena es casi el doble de ancha. Con la mente rota, el mar
+          te entrega cosas <b>más raras</b>. Pescar de noche paga mejor… y cobra en cordura.</span>
+        <span class="en">With a whole mind the good zone is nearly twice as wide. With a broken one, the sea hands you
+          <b>stranger things</b>. Fishing at night pays better… and charges you in sanity.</span>
+      </p>
+
+      <!-- LO QUE MUERDE -->
+      <h3 class="subtitulo"><span class="es">Lo que puede morder</span><span class="en">What may bite</span></h3>
+      <ul class="captura">
+        <li>
+          <img src="assets/peces/sardina.webp" alt="" loading="lazy" width="340" height="121">
+          <b><span class="es">Sardina gris</span><span class="en">Grey sardine</span></b>
+          <span class="es">5 oro · el pan de cada día</span><span class="en">5 gold · your daily bread</span>
+        </li>
+        <li>
+          <img src="assets/peces/bacalao.webp" alt="" loading="lazy" width="340" height="163">
+          <b><span class="es">Bacalao pálido</span><span class="en">Pale cod</span></b>
+          <span class="es">9 oro · llena el estómago</span><span class="en">9 gold · fills the belly</span>
+        </li>
+        <li>
+          <img src="assets/peces/anguila.webp" alt="" loading="lazy" width="340" height="192">
+          <b><span class="es">Anguila de niebla</span><span class="en">Fog eel</span></b>
+          <span class="es">14 oro</span><span class="en">14 gold</span>
+        </li>
+        <li class="es-raro">
+          <img src="assets/peces/luminoso.webp" alt="" loading="lazy" width="340" height="191">
+          <b><span class="es">Pez luminoso ★</span><span class="en">Glowfish ★</span></b>
+          <span class="es">28 oro · comerlo <b>reconforta</b></span><span class="en">28 gold · eating it <b>comforts</b></span>
+        </li>
+        <li class="es-raro">
+          <img src="assets/peces/esqueleto.webp" alt="" loading="lazy" width="340" height="221">
+          <b><span class="es">Pez esqueleto ★</span><span class="en">Skeleton fish ★</span></b>
+          <span class="es">35 oro · solo de noche · perturbador</span><span class="en">35 gold · night only · unsettling</span>
+        </li>
+        <li class="es-raro">
+          <img src="assets/peces/campana.webp" alt="" loading="lazy" width="340" height="328">
+          <b><span class="es">Pez Campana ★</span><span class="en">Bell fish ★</span></b>
+          <span class="es">60 oro · tañe… y <b>desata una tormenta</b></span><span class="en">60 gold · it tolls… and <b>unleashes a storm</b></span>
+        </li>
+        <li class="es-raro">
+          <img src="assets/items/botella.webp" alt="" loading="lazy" width="238" height="300">
+          <b><span class="es">Botella con mapa ★</span><span class="en">Bottled map ★</span></b>
+          <span class="es">revela un <b>tesoro</b> ahí fuera</span><span class="en">reveals a <b>treasure</b> out there</span>
+        </li>
+        <li class="es-raro">
+          <img src="assets/items/llave.webp" alt="" loading="lazy" width="127" height="300">
+          <b><span class="es">Llave oxidada ★</span><span class="en">Rusted key ★</span></b>
+          <span class="es">tres abren la <b>Puerta Hundida</b></span><span class="en">three open the <b>Sunken Gate</b></span>
+        </li>
+      </ul>
+
+      <!-- EL COMBATE -->
+      <h3 class="subtitulo"><span class="es">Y lo que no quiere que lo pesques</span><span class="en">And what doesn't want to be caught</span></h3>
+      <div class="armas">
+        <figure>
+          <img src="assets/items/garfio.webp" alt="" loading="lazy" width="171" height="300">
+          <figcaption><b><span class="es">Garfio</span><span class="en">Hook</span></b>
+            <span class="es">corto y gratis: el arma del hambre</span><span class="en">short and free: the weapon of hunger</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/items/sable.webp" alt="" loading="lazy" width="299" height="300">
+          <figcaption><b><span class="es">Sable</span><span class="en">Cutlass</span></b>
+            <span class="es">rápido, a un brazo de distancia</span><span class="en">fast, an arm's length away</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/items/arpon.webp" alt="" loading="lazy" width="300" height="296">
+          <figcaption><b><span class="es">Arpón</span><span class="en">Harpoon</span></b>
+            <span class="es">vuela de verdad, y se carga despacio</span><span class="en">it really flies, and loads slowly</span></figcaption>
+        </figure>
+        <figure>
+          <img src="assets/items/pistola.webp" alt="" loading="lazy" width="300" height="287">
+          <figcaption><b><span class="es">Pistola</span><span class="en">Flintlock</span></b>
+            <span class="es">seis balas y tres segundos de recarga</span><span class="en">six shots and three seconds to reload</span></figcaption>
+        </figure>
+      </div>
+      <p class="parrafo parrafo--centro parrafo--corto">
+        <span class="es">Cada golpe cuesta media ración de comida: aporrear el clic <b>vacía el estómago</b>, y en ayunas
+          pegas más flojo. Cada bestia nace con sus <b>estrellas</b> y su talla, y las estrellas <b>se degradan</b>
+          si te golpea o si el duelo se alarga: mata rápido y limpio, o cobra menos.</span>
+        <span class="en">Every blow costs half a ration: mashing the button <b>empties your belly</b>, and on an empty
+          stomach you hit softer. Each beast is born with its own <b>stars</b> and size, and the stars <b>degrade</b>
+          if it hits you or the duel drags on: kill fast and clean, or get paid less.</span>
+      </p>
+      <p class="parrafo parrafo--centro parrafo--corto aviso">
+        <span class="es">De noche y sin lámpara, lo que se acerca es una <b>silueta negra sin nombre</b> hasta que la
+          tienes a once metros — y pega más fuerte y corre más. Solo la luz dice la verdad… y a veces
+          ni la luz: hay siluetas que, al revelarse, <b>no son lo que parecían</b>.</span>
+        <span class="en">At night without a lamp, what approaches is a <b>nameless black silhouette</b> until it's eleven
+          metres away — and it hits harder and moves faster. Only light tells the truth… and sometimes not even
+          light: some silhouettes, once revealed, <b>are not what they seemed</b>.</span>
+      </p>
+
+      <!-- LA DOMA -->
+      <h3 class="subtitulo"><span class="es">Domar lo que casi te mata</span><span class="en">Taming what nearly killed you</span></h3>
+      <p class="parrafo parrafo--centro">
+        <span class="es">Fabrica una <b>caña de captura</b>, hiérela primero y lánzale el lazo. La caña siempre se rompe;
+          si aguanta, la bestia se queda a vivir en el agua de tu muelle. Caben tres, o cinco si amplías el establo.
+          <b>Todo lo que nada se puede domar</b>: cada especie pide su nivel de caña y su cebo favorito.</span>
+        <span class="en">Craft a <b>catching rod</b>, wound it first and throw the lasso. The rod always breaks; if it holds,
+          the beast stays in the water by your pier. Three fit, or five if you extend the pen.
+          <b>Everything that swims can be tamed</b>: each species asks for its rod level and its favourite bait.</span>
+      </p>
+      <p class="parrafo parrafo--centro parrafo--corto">
+        <span class="es">Lo que domas <b>defiende el muelle</b> de noche, te escolta mar adentro y te deja regalos al alba.
+          Y lo que nace en el nido hereda estrellas, talla, temple y mutaciones — <a href="#bestiario">ahí empieza la
+          crianza</a>.</span>
+        <span class="en">What you tame <b>defends the pier</b> at night, escorts you out to sea and leaves you gifts at dawn.
+          And what hatches in the nest inherits stars, size, temper and mutations — <a href="#bestiario">that's where
+          breeding begins</a>.</span>
+      </p>
+
+      <nav class="pantalla__sigue">
         <a href="#bestiario">
           <span class="es">Siguiente: Bestiario</span><span class="en">Next: Bestiary</span>
         </a>
@@ -288,6 +454,46 @@
             <b><span class="es">Ballena</span><span class="en">Whale</span></b>
             <span class="es">Flanquea y salta. Se puede montar.</span>
             <span class="en">It flanks and breaches. It can be ridden.</span>
+          </figcaption>
+        </figure>
+        <figure class="bestia">
+          <img src="assets/bestias/megalodon.webp" alt="" loading="lazy" width="640" height="620">
+          <figcaption>
+            <b><span class="es">Megalodón</span><span class="en">Megalodon</span></b>
+            <span class="es">Llega como una aleta muda que te ronda.</span>
+            <span class="en">It arrives as a silent fin, circling.</span>
+          </figcaption>
+        </figure>
+        <figure class="bestia">
+          <img src="assets/bestias/calamar.webp" alt="" loading="lazy" width="674" height="660">
+          <figcaption>
+            <b><span class="es">Calamar Abisal</span><span class="en">Abyssal Squid</span></b>
+            <span class="es">Torre de tentáculos. Si lo esquivas, escupe tinta.</span>
+            <span class="en">A tower of arms. Dodge it and it spits ink.</span>
+          </figcaption>
+        </figure>
+        <figure class="bestia">
+          <img src="assets/bestias/rape.webp" alt="" loading="lazy" width="640" height="620">
+          <figcaption>
+            <b><span class="es">Pez Linterna</span><span class="en">Lantern Fish</span></b>
+            <span class="es">De lejos es una luz quieta que parece un farol. No lo es.</span>
+            <span class="en">From afar, a still light that looks like a lantern. It isn't.</span>
+          </figcaption>
+        </figure>
+        <figure class="bestia">
+          <img src="assets/bestias/sirena.webp" alt="" loading="lazy" width="640" height="620">
+          <figcaption>
+            <b><span class="es">Cantora de Marea</span><span class="en">Tide Singer</span></b>
+            <span class="es">No muerde: canta. Y el canto se lleva la cordura.</span>
+            <span class="en">It doesn't bite: it sings. And the song takes your mind.</span>
+          </figcaption>
+        </figure>
+        <figure class="bestia">
+          <img src="assets/bestias/espectro.webp" alt="" loading="lazy" width="640" height="620">
+          <figcaption>
+            <b><span class="es">Espectro</span><span class="en">Wraith</span></b>
+            <span class="es">Bajo la Luna de Sangre se vuelve de carne. Entonces se le puede quitar lo que guarda.</span>
+            <span class="en">Under the Blood Moon it turns to flesh. Then you can take what it hoards.</span>
           </figcaption>
         </figure>
       </div>

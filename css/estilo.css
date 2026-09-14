@@ -216,9 +216,10 @@ body.tira .heroe { min-height: 620px; }
   z-index: -1;
   pointer-events: none;
   background: radial-gradient(ellipse at center,
-      rgba(4, 7, 12, .86) 0%,
-      rgba(4, 7, 12, .70) 48%,
-      rgba(4, 7, 12, 0) 78%);
+      rgba(4, 7, 12, .82) 0%,
+      rgba(4, 7, 12, .62) 42%,
+      rgba(4, 7, 12, .26) 64%,
+      rgba(4, 7, 12, 0) 84%);
 }
 
 .heroe__logo {
@@ -996,6 +997,21 @@ body.tira .heroe { min-height: 620px; }
 }
 
 
+/* La línea del cielo en el rótulo de la marea */
+.marea-rotulo__cielo {
+  display: block;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(201, 162, 39, .14);
+  font-size: .78rem;
+  letter-spacing: .04em;
+  color: var(--apagado);
+}
+.marea-rotulo__cielo.es-raro {
+  color: var(--oro-vivo);
+  font-style: italic;
+}
+
 /* ═══════════════ PANTALLAS ═══════════════ */
 /* El sitio se lee como el menú de un juego: la PORTADA es la cubierta (logo,
    lema, los rumbos y el mar vivo detrás) y cada sección es una pantalla que se
@@ -1060,9 +1076,9 @@ html[data-pantallas] .pantalla.activa {
 
 .rumbos {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-  width: min(980px, 94vw);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 9px;
+  width: min(1080px, 95vw);
   margin: clamp(28px, 5vh, 54px) auto 0;
 }
 .rumbo {
@@ -1133,6 +1149,131 @@ body[data-pantalla="portada"] .heroe__plataformas {
 }
 
 
+/* ═══════════════ CÓMO SE JUEGA ═══════════════ */
+
+/* Los pasos de la pesca: el número manda, como en una bitácora. */
+.pasos {
+  list-style: none;
+  counter-reset: paso;
+  margin: 0 0 34px;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.pasos li {
+  counter-increment: paso;
+  position: relative;
+  padding: 16px 20px 16px 66px;
+  background: var(--panel);
+  border: 1px solid rgba(201, 162, 39, .14);
+  border-radius: var(--radio);
+}
+.pasos li::before {
+  content: counter(paso);
+  position: absolute;
+  left: 20px; top: 14px;
+  font-family: var(--titulo);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--oro);
+  opacity: .75;
+  line-height: 1;
+}
+/* Solo el TÍTULO del paso va en bloque: los <b> de dentro del texto son
+   énfasis en línea (RECOGE, SUELTA HILO, JALA) y se partían en tres renglones
+   con la coma colgando. Cazado mirando la captura. */
+.pasos li > b {
+  display: block;
+  font-family: var(--titulo);
+  font-size: 1rem;
+  letter-spacing: .04em;
+  color: var(--oro-palido);
+  margin-bottom: 4px;
+}
+.pasos span { color: var(--tenue); font-size: .97rem; }
+.pasos span b { color: var(--hueso); }
+
+/* La tabla de lo que muerde: cada pieza con su retrato. */
+.captura {
+  list-style: none;
+  margin: 0 0 34px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+.captura li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 14px 12px 16px;
+  background: var(--panel);
+  border: 1px solid rgba(201, 162, 39, .12);
+  border-radius: var(--radio);
+}
+.captura img {
+  height: 62px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, .7));
+  margin-bottom: 4px;
+}
+.captura li > b {
+  font-family: var(--titulo);
+  font-size: .92rem;
+  letter-spacing: .03em;
+  color: var(--hueso);
+}
+.captura span { font-size: .84rem; color: var(--apagado); line-height: 1.35; }
+.captura span b { color: var(--hueso); }
+/* Lo raro se anuncia solo. */
+.captura li.es-raro { border-color: var(--oro-tenue); background: linear-gradient(180deg, rgba(28, 22, 6, .5), var(--panel)); }
+.captura li.es-raro b { color: var(--oro-palido); }
+
+/* Las cuatro armas */
+.armas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 26px;
+}
+.armas figure {
+  margin: 0;
+  padding: 16px 12px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid rgba(201, 162, 39, .12);
+  border-radius: var(--radio);
+}
+.armas img {
+  height: 76px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .75));
+  margin-bottom: 8px;
+}
+.armas figcaption { font-size: .86rem; color: var(--apagado); line-height: 1.4; }
+.armas figcaption b {
+  display: block;
+  font-family: var(--titulo);
+  font-size: .95rem;
+  color: var(--oro-palido);
+  margin-bottom: 2px;
+}
+
+/* El párrafo que avisa: el que cuenta lo que pasa de noche. */
+.parrafo.aviso {
+  border-left: 2px solid var(--oro-tenue);
+  padding-left: 18px;
+  text-align: left;
+  font-style: italic;
+  color: var(--tenue);
+}
+
+
 /* ═══════════════ APARICIONES AL DESPLAZAR ═══════════════ */
 
 .aparece {
@@ -1166,9 +1307,9 @@ body[data-pantalla="portada"] .heroe__plataformas {
   .heroe { padding-bottom: 72px; }
 
   /* Sin barra de navegación en el móvil, los rumbos SON el menú: a dos
-     columnas y el de Jugar cruzando la fila (queda impar de los cinco). */
+     columnas. Ya son seis (pares), así que las tres filas salen completas —
+     cuando eran cinco, Jugar cruzaba la fila para no dejar a nadie solo. */
   .rumbos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .rumbo--oro { grid-column: 1 / -1; }
   .pantalla__sigue { text-align: center; }
 
   .pie__filas { flex-direction: column; text-align: center; }

@@ -254,10 +254,19 @@
     return '<span class="es">' + es + '</span><span class="en">' + en + '</span>';
   }
 
+  var elCielo = document.getElementById('marea-cielo');
+
   if (window.Mar && elNombre && elNota) {
     window.Mar.alCambiarMarea(function (m) {
       elNombre.innerHTML = dosLenguas(m.es, m.en);
       elNota.innerHTML = dosLenguas(m.notaEs, m.notaEn);
+      // El cielo de esta marea: la fase de la luna, o la noche rara si la hay.
+      if (elCielo && window.Mar.cieloActual) {
+        var c = window.Mar.cieloActual();
+        var q = c.cielo || c.fase;
+        elCielo.innerHTML = dosLenguas('Arriba: ' + q.es, 'Above: ' + q.en);
+        elCielo.classList.toggle('es-raro', !!c.cielo);
+      }
       if (elRotulo) {
         var acento = m.id === 'prismatica'
           ? '#d9a7ff'
