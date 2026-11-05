@@ -216,7 +216,8 @@ Cualquiera de ellos se salta el telón de entrada.
 
 ## Pendiente
 
-- **Steam**: cuando la ficha esté publicada, cambiar la tarjeta "Próximamente"
+- **iOS / Roblox / Steam** (5 nov 2026: las tres tarjetas `tienda--pronto` de "Jugar", y la línea de
+  plataformas de la portada): cuando una salga, cambiar su tarjeta "Próximamente"
   de `index.html` por el botón real de lista de deseados.
 - **Captcha**: hay un hueco preparado y comentado en la sección "Avisarme del
   zarpe" de `index.html`, para Cloudflare Turnstile cuando se compre el dominio.
